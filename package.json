@@ -1,6 +1,8 @@
 {
   "name": "paradize",
   "version": "0.1.0",
+  "description": "A movement built to transform people through reading, meaningful conversations, and lifelong intellectual growth.",
+  "author": "Ujjwal & Om",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,6 +19,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "better-auth": "^1.6.23",
     "dompurify": "^3.4.12",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.42.2",
     "isomorphic-dompurify": "^3.19.0",
