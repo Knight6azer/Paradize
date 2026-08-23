@@ -11,6 +11,27 @@ export const auth = betterAuth({
       user: schema.users,
     }
   }),
+  user: {
+    additionalFields: {
+      username: { type: "string", required: false },
+      displayName: { type: "string", required: false }
+    }
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: (user) => {
+          return {
+            data: {
+              ...user,
+              displayName: user.name || "User",
+              username: user.email.split("@")[0].toLowerCase() + Math.floor(Math.random() * 10000),
+            }
+          }
+        }
+      }
+    }
+  },
   emailAndPassword: {
     enabled: true,
   },
