@@ -1,10 +1,23 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { BookBookmark, House, Books, ChatTeardropDots, User, SignOut, Plus, Compass } from "@phosphor-icons/react";
+import styles from "./layout.module.css";
+import { 
+  Books, 
+  Compass, 
+  Layout,
+  ChatsCircle,
+  Users,
+  Notebook,
+  User,
+  ArrowRight,
+  List,
+  X,
+  Bell
+} from "@phosphor-icons/react";
 import { useSession, signOut } from "@/lib/auth/client";
-import { useRouter } from "next/navigation";
 
 export default function AppLayout({
   children,
@@ -12,16 +25,30 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
   const router = useRouter();
+  const { data: session } = useSession();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const navItems = [
-    { name: "Home", href: "/dashboard", icon: House },
-    { name: "Library", href: "/library", icon: Books },
-    { name: "Discover", href: "/discover", icon: Compass },
-    { name: "Discussions", href: "/discussions", icon: ChatTeardropDots },
-    { name: "Profile", href: `/profile/${session?.user?.username || ''}`, icon: User },
-  ];
+  // Fallback user if session is loading
+  const user = {
+    name: session?.user?.name || "Reader",
+    handle: `@${session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "reader"}`,
+    avatar: session?.user?.name?.charAt(0) || "R",
+  };
+
+  const getPageTitle = () => {
+    if (pathname.includes("/dashboard")) return "Dashboard";
+    if (pathname.includes("/library")) return "My Library";
+    if (pathname.includes("/discover")) return "Discover Books";
+    if (pathname.includes("/discussions")) return "Discussions";
+    if (pathname.includes("/groups")) return "Reading Groups";
+    if (pathname.includes("/journal")) return "Reflection Journal";
+    if (pathname.includes("/profile")) return "Profile";
+    if (pathname.includes("/onboarding")) return "Welcome to Paradize";
+    return "Paradize";
+  };
+
+  const closeSidebar = () => setIsMobileSidebarOpen(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -29,81 +56,144 @@ export default function AppLayout({
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-secondary)" }}>
-      {/* Sidebar Navigation */}
-      <aside style={{
-        width: "280px",
-        background: "var(--bg-card)",
-        borderRight: "1px solid var(--border-light)",
-        display: "flex",
-        flexDirection: "column",
-        position: "sticky",
-        top: 0,
-        height: "100vh",
-        padding: "var(--space-6)",
-      }}>
-        <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: "var(--font-heading)", fontSize: "var(--text-xl)", fontWeight: "var(--weight-bold)", color: "var(--text-primary)", marginBottom: "var(--space-10)" }}>
-          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, var(--forest-sage), var(--forest-sage-dark))", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
-            <BookBookmark size={20} weight="bold" />
-          </div>
-          Paradize
-        </Link>
+    <div className={styles.layout}>
+      {/* Mobile Sidebar Overlay */}
+      <div 
+        className={`${styles.overlay} ${isMobileSidebarOpen ? styles["overlay--open"] : ""}`}
+        onClick={closeSidebar}
+      />
 
-        <nav style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", flex: 1 }}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            
-            return (
-              <Link 
-                key={item.name} 
-                href={item.href}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-3)",
-                  padding: "var(--space-3) var(--space-4)",
-                  borderRadius: "var(--radius-lg)",
-                  fontSize: "var(--text-base)",
-                  fontWeight: isActive ? "var(--weight-semibold)" : "var(--weight-medium)",
-                  color: isActive ? "var(--forest-sage)" : "var(--text-secondary)",
-                  background: isActive ? "rgba(45, 95, 62, 0.08)" : "transparent",
-                  transition: "all var(--transition-fast)",
-                }}
-              >
-                <Icon size={24} weight={isActive ? "fill" : "regular"} />
-                {item.name}
-              </Link>
-            );
-          })}
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${isMobileSidebarOpen ? styles["sidebar--open"] : ""}`}>
+        <div className={styles.sidebar__header}>
+          <Link href="/" className={styles.sidebar__logo} onClick={closeSidebar}>
+            <Books size={24} weight="duotone" color="var(--forest-sage)" />
+            Paradize
+          </Link>
+          <button 
+            className={styles.mobile__toggle} 
+            onClick={closeSidebar}
+            style={{ display: isMobileSidebarOpen ? "block" : "none" }}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <nav className={styles.sidebar__nav}>
+          <div className={styles.nav__section}>
+            <div className={styles.nav__label}>Main</div>
+            <Link
+              href="/dashboard"
+              className={`${styles.nav__item} ${pathname === "/dashboard" ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <Layout size={20} weight={pathname === "/dashboard" ? "fill" : "regular"} />
+              Dashboard
+            </Link>
+            <Link
+              href="/library"
+              className={`${styles.nav__item} ${pathname === "/library" ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <Books size={20} weight={pathname === "/library" ? "fill" : "regular"} />
+              My Library
+            </Link>
+            <Link
+              href="/discover"
+              className={`${styles.nav__item} ${pathname.includes("/discover") ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <Compass size={20} weight={pathname.includes("/discover") ? "fill" : "regular"} />
+              Discover
+            </Link>
+          </div>
+
+          <div className={styles.nav__section}>
+            <div className={styles.nav__label}>Community</div>
+            <Link
+              href="/discussions"
+              className={`${styles.nav__item} ${pathname.includes("/discussions") ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <ChatsCircle size={20} weight={pathname.includes("/discussions") ? "fill" : "regular"} />
+              Discussions
+            </Link>
+            <Link
+              href="/groups"
+              className={`${styles.nav__item} ${pathname.includes("/groups") ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <Users size={20} weight={pathname.includes("/groups") ? "fill" : "regular"} />
+              Reading Groups
+            </Link>
+          </div>
+
+          <div className={styles.nav__section}>
+            <div className={styles.nav__label}>Personal</div>
+            <Link
+              href="/journal"
+              className={`${styles.nav__item} ${pathname.includes("/journal") ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <Notebook size={20} weight={pathname.includes("/journal") ? "fill" : "regular"} />
+              Reflection Journal
+            </Link>
+            <Link
+              href={`/profile/${session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "me"}`}
+              className={`${styles.nav__item} ${pathname.includes("/profile") ? styles["nav__item--active"] : ""}`}
+              onClick={closeSidebar}
+            >
+              <User size={20} weight={pathname.includes("/profile") ? "fill" : "regular"} />
+              Profile
+            </Link>
+          </div>
         </nav>
 
-        <button className="btn btn--primary" style={{ width: "100%", padding: "var(--space-4)", marginBottom: "var(--space-6)" }}>
-          <Plus size={20} weight="bold" />
-          New Discussion
-        </button>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", paddingTop: "var(--space-6)", borderTop: "1px solid var(--border-light)" }}>
-          <div className="avatar">
-            {session?.user?.name?.[0] || 'U'}
-          </div>
+        <div className={styles.sidebar__footer}>
+          <div className="avatar avatar--sm">{user.avatar}</div>
           <div style={{ flex: 1, overflow: "hidden" }}>
-            <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {session?.user?.name || 'Loading...'}
+            <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+              {user.name}
             </div>
             <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-              Level 1 Reader
+              {user.handle}
             </div>
           </div>
-          <button onClick={handleSignOut} style={{ color: "var(--text-tertiary)", padding: "var(--space-2)", borderRadius: "var(--radius-md)" }} aria-label="Sign out">
-            <SignOut size={20} />
+          <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }} onClick={handleSignOut} title="Sign Out">
+            <ArrowRight size={16} />
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, padding: "var(--space-8) var(--space-12)", maxWidth: "1200px" }}>
-        {children}
+      {/* Main Content Area */}
+      <main className={styles.main}>
+        {/* Top Header */}
+        <header className={styles.header}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+            <button 
+              className={styles.mobile__toggle}
+              onClick={() => setIsMobileSidebarOpen(true)}
+              style={{ display: "block" }} // overridden by media query in CSS
+            >
+              <List size={24} />
+            </button>
+            <h1 className={styles.header__title}>{getPageTitle()}</h1>
+          </div>
+          <div className={styles.header__actions}>
+            <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }}>
+              <Bell size={20} />
+            </button>
+            <button 
+              className="btn btn--primary btn--sm"
+              onClick={() => router.push("/discussions/new")}
+            >
+              New Discussion
+            </button>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <div className={styles.content}>{children}</div>
       </main>
     </div>
   );
