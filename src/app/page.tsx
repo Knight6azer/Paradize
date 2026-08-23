@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   BookOpenText,
@@ -29,7 +31,11 @@ const fadeInUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
   }),
 };
 
@@ -42,11 +48,14 @@ const staggerContainer = {
 };
 
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    transition: {
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
   },
 };
 
@@ -142,6 +151,7 @@ const steps = [
 /* ─── Landing Page Component ───────────────────────── */
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const router = useRouter();
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
@@ -177,11 +187,11 @@ export default function LandingPage() {
           </div>
 
           <div className="navbar__actions">
-            <button className="btn btn--ghost">Sign In</button>
-            <button className="btn btn--primary">
+            <Link href="/login" className="btn btn--ghost">Sign In</Link>
+            <Link href="/register" className="btn btn--primary">
               <Sparkle size={16} weight="fill" />
               Join Paradize
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -225,14 +235,14 @@ export default function LandingPage() {
           </motion.p>
 
           <motion.div className={styles.hero__actions} variants={fadeInUp} custom={3}>
-            <button className="btn btn--primary btn--lg">
+            <Link href="/register" className="btn btn--primary btn--lg">
               Start Your Reading Journey
               <ArrowRight size={20} weight="bold" />
-            </button>
-            <button className="btn btn--secondary btn--lg">
+            </Link>
+            <Link href="/discover" className="btn btn--secondary btn--lg">
               <Compass size={20} />
               Explore the Community
-            </button>
+            </Link>
           </motion.div>
 
           <motion.div className={styles.hero__stats} variants={fadeInUp} custom={4}>
@@ -418,10 +428,10 @@ export default function LandingPage() {
               Join hundreds of curious minds in Mumbai who are reading deeper,
               thinking sharper, and growing together.
             </p>
-            <button className={styles.cta__btn}>
+            <Link href="/register" className={styles.cta__btn}>
               Join Paradize — It&apos;s Free
               <ArrowRight size={20} weight="bold" />
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -454,15 +464,15 @@ export default function LandingPage() {
                 <a href="#features" className={styles.footer__link}>
                   Features
                 </a>
-                <a href="#" className={styles.footer__link}>
+                <Link href="/library" className={styles.footer__link}>
                   Book Library
-                </a>
-                <a href="#" className={styles.footer__link}>
+                </Link>
+                <Link href="/groups" className={styles.footer__link}>
                   Reading Groups
-                </a>
-                <a href="#" className={styles.footer__link}>
+                </Link>
+                <Link href="/discussions" className={styles.footer__link}>
                   Discussions
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -472,15 +482,15 @@ export default function LandingPage() {
                 <a href="#values" className={styles.footer__link}>
                   Our Values
                 </a>
-                <a href="#" className={styles.footer__link}>
-                  Guidelines
-                </a>
-                <a href="#" className={styles.footer__link}>
+                <Link href="/discover" className={styles.footer__link}>
+                  Discover Books
+                </Link>
+                <Link href="/groups" className={styles.footer__link}>
                   Mumbai Meetups
-                </a>
-                <a href="#" className={styles.footer__link}>
-                  Blog
-                </a>
+                </Link>
+                <Link href="/journal" className={styles.footer__link}>
+                  Reflection Journal
+                </Link>
               </div>
             </div>
 
