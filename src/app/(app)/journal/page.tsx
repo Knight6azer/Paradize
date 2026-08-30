@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/client";
 import { Notebook, Sparkle, LockKey, Globe, BookOpenText } from "@phosphor-icons/react";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
@@ -8,11 +8,23 @@ import EmptyState from "@/app/components/EmptyState";
 import MoodSelector from "@/app/components/MoodSelector";
 import { useRouter } from "next/navigation";
 
+interface ReflectionEntry {
+  id: string;
+  content: string;
+  mood?: string | null;
+  isPrivate: boolean;
+  growthTags?: string[];
+  createdAt: string;
+  bookId?: string | null;
+  bookTitle?: string | null;
+  bookCover?: string | null;
+}
+
 export default function JournalPage() {
   const { data: session } = useSession();
   const router = useRouter();
   
-  const [reflections, setReflections] = useState<any[]>([]);
+  const [reflections, setReflections] = useState<ReflectionEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Composer state
@@ -25,7 +37,7 @@ export default function JournalPage() {
   const [prompt, setPrompt] = useState("What challenged your perspective today?");
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
 
-  const fetchReflections = async () => {
+  const fetchReflections = useCallback(async () => {
     if (!session?.user?.id) return;
     setIsLoading(true);
     try {
@@ -39,11 +51,12 @@ export default function JournalPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchReflections();
-  }, [session]);
+  }, [fetchReflections]);
 
   const handleGeneratePrompt = async () => {
     setIsGeneratingPrompt(true);
@@ -187,7 +200,7 @@ export default function JournalPage() {
               </button>
             </div>
             <div style={{ padding: "var(--space-3)", background: "var(--bg-card)", borderRadius: "var(--radius-md)", fontSize: "var(--text-sm)", color: "var(--text-secondary)", fontStyle: "italic", borderLeft: "3px solid var(--forest-sage)" }}>
-              "{prompt}"
+              &ldquo;{prompt}&rdquo;
             </div>
           </div>
 
