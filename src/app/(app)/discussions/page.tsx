@@ -1,44 +1,57 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/client";
-import { ChatsCircle, Plus, BookOpenText, TrendUp } from "@phosphor-icons/react";
+import { ChatsCircle, Plus } from "@phosphor-icons/react";
 import DiscussionCard from "@/app/components/DiscussionCard";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import EmptyState from "@/app/components/EmptyState";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+interface DiscussionData {
+  id: string;
+  title: string;
+  content: string;
+  authorName: string;
+  discussionType: string;
+  bookTitle?: string | null;
+  groupName?: string | null;
+  upvotes: number;
+  replyCount: number;
+  createdAt: string;
+}
 
 export default function DiscussionsPage() {
   const { data: session } = useSession();
   const router = useRouter();
   
   const [activeTab, setActiveTab] = useState<string>("all");
-  const [discussions, setDiscussions] = useState<any[]>([]);
+  const [discussions, setDiscussions] = useState<DiscussionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadDiscussions() {
-      setIsLoading(true);
-      try {
-        const url = activeTab === "all" 
-          ? `/api/discussions`
-          : `/api/discussions?type=${activeTab}`;
-          
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          setDiscussions(data.discussions || []);
-        }
-      } catch (error) {
-        console.error("Failed to load discussions:", error);
-      } finally {
-        setIsLoading(false);
+  const loadDiscussions = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const url = activeTab === "all" 
+        ? `/api/discussions`
+        : `/api/discussions?type=${activeTab}`;
+        
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setDiscussions(data.discussions || []);
       }
+    } catch (error) {
+      console.error("Failed to load discussions:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    loadDiscussions();
   }, [activeTab]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDiscussions();
+  }, [loadDiscussions]);
 
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
