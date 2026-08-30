@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { discussions, users, books, readingGroups } from "@/lib/db/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, type SQL } from "drizzle-orm";
 
 /**
  * GET /api/discussions?type=...&bookId=...&groupId=...&limit=...&offset=...
@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0");
 
     const db = getDb();
-    let conditions: any[] = [];
+    const conditions: SQL[] = [];
 
-    if (type) conditions.push(eq(discussions.discussionType, type as any));
+    if (type) conditions.push(eq(discussions.discussionType, type as typeof discussions.discussionType.enumValues[number]));
     if (bookId) conditions.push(eq(discussions.bookId, bookId));
     if (groupId) conditions.push(eq(discussions.groupId, groupId));
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         authorId,
         title,
         content,
-        discussionType: discussionType as any,
+        discussionType: discussionType as typeof discussions.discussionType.enumValues[number],
         bookId: bookId || null,
         groupId: groupId || null,
       })
