@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { readingGroups, groupMembers, users, books } from "@/lib/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { readingGroups, groupMembers, books } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 /**
  * GET /api/groups?my=true&userId=... — List groups
