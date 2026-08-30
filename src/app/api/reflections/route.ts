@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { reflections, books } from "@/lib/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, type SQL } from "drizzle-orm";
 
 /**
  * GET /api/reflections?userId=...&bookId=...
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     const db = getDb();
-    let conditions = [eq(reflections.userId, userId)];
+    const conditions: SQL[] = [eq(reflections.userId, userId)];
     if (bookId) conditions.push(eq(reflections.bookId, bookId));
 
     const result = await db
