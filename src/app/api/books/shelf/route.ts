@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { userBooks, books } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, type SQL } from "drizzle-orm";
 
 /**
  * GET /api/books/shelf?userId=...&status=reading|completed|want_to_read
@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     }
 
     const db = getDb();
-    let conditions = [eq(userBooks.userId, userId)];
+    const conditions: SQL[] = [eq(userBooks.userId, userId)];
     if (status) {
-      conditions.push(eq(userBooks.status, status as any));
+      conditions.push(eq(userBooks.status, status as typeof userBooks.status.enumValues[number]));
     }
 
     const result = await db
@@ -104,14 +104,14 @@ export async function POST(request: NextRequest) {
       .values({
         userId,
         bookId: bookRecord.id,
-        status: status as any,
+        status: status as typeof userBooks.status.enumValues[number],
         startedAt: status === "reading" ? new Date() : null,
         completedAt: status === "completed" ? new Date() : null,
         progressPercent: status === "completed" ? 100 : 0,
       })
       .onConflictDoUpdate({
         target: [userBooks.userId, userBooks.bookId],
-        set: { status: status as any, updatedAt: new Date() },
+        set: { status: status as typeof userBooks.status.enumValues[number], updatedAt: new Date() },
       })
       .returning();
 
@@ -136,7 +136,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const db = getDb();
-    const updateData: Record<string, any> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: new Date() };
 
     if (status) updateData.status = status;
     if (progressPercent !== undefined) updateData.progressPercent = progressPercent;
