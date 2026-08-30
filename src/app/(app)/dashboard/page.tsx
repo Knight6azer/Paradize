@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { 
-  TrendUp, 
   BookOpenText, 
   Sparkle,
   BookmarkSimple,
   ChatsCircle,
   Fire,
   Medal,
-  Users
 } from "@phosphor-icons/react";
 import BookCard from "@/app/components/BookCard";
 import DiscussionCard from "@/app/components/DiscussionCard";
@@ -18,11 +16,40 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import EmptyState from "@/app/components/EmptyState";
 import { useSession } from "@/lib/auth/client";
 
+interface DashboardBook {
+  id: string;
+  bookId: string;
+  title: string;
+  authors: string[];
+  coverUrl?: string | null;
+  progressPercent: number;
+}
+
+interface DashboardDiscussion {
+  id: string;
+  title: string;
+  content: string;
+  authorName: string;
+  discussionType: string;
+  bookTitle?: string | null;
+  groupName?: string | null;
+  upvotes: number;
+  replyCount: number;
+  createdAt: string;
+}
+
+interface DashboardRecommendation {
+  title: string;
+  author: string;
+  reason: string;
+  question: string;
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const [reading, setReading] = useState<any[]>([]);
-  const [discussions, setDiscussions] = useState<any[]>([]);
-  const [recommendation, setRecommendation] = useState<any>(null);
+  const [reading, setReading] = useState<DashboardBook[]>([]);
+  const [discussions, setDiscussions] = useState<DashboardDiscussion[]>([]);
+  const [recommendation, setRecommendation] = useState<DashboardRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -81,7 +108,7 @@ export default function DashboardPage() {
         <h1 style={{ fontSize: "var(--text-3xl)", marginBottom: "var(--space-2)" }}>
           Welcome back, {session?.user?.name?.split(' ')[0] || 'Reader'}
         </h1>
-        <p style={{ color: "var(--text-secondary)", marginBottom: "var(--space-6)" }}>Here's what's happening in your intellectual journey.</p>
+        <p style={{ color: "var(--text-secondary)", marginBottom: "var(--space-6)" }}>Here&apos;s what&apos;s happening in your intellectual journey.</p>
         
         {/* Stats Row */}
         <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-6)" }}>
@@ -176,7 +203,7 @@ export default function DashboardPage() {
                   </div>
                   
                   <p style={{ fontSize: "var(--text-sm)", lineHeight: "var(--leading-relaxed)", marginBottom: "var(--space-4)", fontStyle: "italic" }}>
-                    "{recommendation.reason}"
+                    &ldquo;{recommendation.reason}&rdquo;
                   </p>
                   
                   <div style={{ background: "white", padding: "var(--space-3)", borderRadius: "var(--radius-md)", borderLeft: "3px solid var(--amber-main)" }}>
