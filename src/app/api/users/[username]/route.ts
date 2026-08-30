@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { users, userBooks, discussions, reflections, achievements } from "@/lib/db/schema";
-import { eq, sql, count } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 
 /**
  * GET /api/users/[username] — Public profile data
@@ -87,7 +87,7 @@ export async function PATCH(
     const { displayName, bio, city, readingPreferences } = body;
 
     const db = getDb();
-    const updateData: Record<string, any> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: new Date() };
     if (displayName) updateData.displayName = displayName;
     if (bio !== undefined) updateData.bio = bio;
     if (city) updateData.city = city;
