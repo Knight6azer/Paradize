@@ -16,7 +16,7 @@ export async function PATCH(
     const { content, mood, isPrivate } = body;
 
     const db = getDb();
-    const updateData: Record<string, any> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: new Date() };
     if (content !== undefined) updateData.content = content;
     if (mood !== undefined) updateData.mood = mood;
     if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
