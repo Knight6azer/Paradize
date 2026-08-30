@@ -1,15 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useSession } from "@/lib/auth/client";
-import { User, Medal, BookOpenText, Fire, ChatsCircle } from "@phosphor-icons/react";
+import { Medal, BookOpenText, Fire, ChatsCircle } from "@phosphor-icons/react";
 import BookCard from "@/app/components/BookCard";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import { notFound } from "next/navigation";
 
-export default function ProfilePage({ params }: { params: { username: string } }) {
+interface ProfileBook {
+  id: string;
+  bookId: string;
+  title: string;
+  authors: string[];
+  coverUrl?: string | null;
+}
+
+interface ProfileDiscussion {
+  id: string;
+  title: string;
+  createdAt: string;
+  upvotes: number;
+}
+
+interface ProfileData {
+  id: string;
+  name: string;
+  preferences?: {
+    readingStyle?: string;
+    booksPerMonth?: string;
+    favoriteGenres?: string[];
+    biggestChallenge?: string;
+    growthGoal?: string;
+  };
+  stats?: {
+    streak?: number;
+    booksRead?: number;
+    discussions?: number;
+    reputation?: number;
+  };
+  recentBooks?: ProfileBook[];
+  recentDiscussions?: ProfileDiscussion[];
+}
+
+export default function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = use(params);
   const { data: session } = useSession();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -17,24 +53,24 @@ export default function ProfilePage({ params }: { params: { username: string } }
     async function loadProfile() {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/users/${params.username}`);
+        const res = await fetch(`/api/users/${username}`);
         if (res.ok) {
           const data = await res.json();
           setProfile(data.user);
         } else {
           setError("User not found");
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load profile");
       } finally {
         setIsLoading(false);
       }
     }
 
-    if (params.username) {
+    if (username) {
       loadProfile();
     }
-  }, [params.username]);
+  }, [username]);
 
   if (isLoading) return <LoadingSpinner label="Loading profile..." />;
   if (error || !profile) return notFound();
@@ -118,7 +154,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
             
             {profile.recentBooks && profile.recentBooks.length > 0 ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "var(--space-4)" }}>
-                {profile.recentBooks.map((book: any) => (
+                {profile.recentBooks.map((book: ProfileBook) => (
                   <BookCard
                     key={book.id}
                     id={book.bookId}
@@ -145,7 +181,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
             
             {profile.recentDiscussions && profile.recentDiscussions.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-                {profile.recentDiscussions.map((disc: any) => (
+                {profile.recentDiscussions.map((disc: ProfileDiscussion) => (
                   <div key={disc.id} className="card card--interactive">
                     <h4 style={{ fontSize: "var(--text-lg)", marginBottom: "var(--space-2)" }}>{disc.title}</h4>
                     <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>
