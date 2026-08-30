@@ -1,48 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/client";
-import { Users, Plus, BookOpenText } from "@phosphor-icons/react";
+import { Users, Plus } from "@phosphor-icons/react";
 import GroupCard from "@/app/components/GroupCard";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import EmptyState from "@/app/components/EmptyState";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+interface GroupData {
+  id: string;
+  name: string;
+  description?: string | null;
+  memberCount: number;
+  maxMembers: number;
+  currentBookTitle?: string | null;
+  genreFocus?: string[];
+  isPublic: boolean;
+  role?: string;
+}
 
 export default function GroupsPage() {
   const { data: session } = useSession();
   const router = useRouter();
   
   const [activeTab, setActiveTab] = useState<"discover" | "my_groups">("discover");
-  const [groups, setGroups] = useState<any[]>([]);
+  const [groups, setGroups] = useState<GroupData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadGroups() {
-      setIsLoading(true);
-      try {
-        const url = activeTab === "my_groups" && session?.user?.id
-          ? `/api/groups?my=true&userId=${session.user.id}`
-          : `/api/groups`;
-          
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          setGroups(data.groups || []);
-        }
-      } catch (error) {
-        console.error("Failed to load groups:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const loadGroups = useCallback(async () => {
+    if (activeTab === "my_groups" && !session?.user?.id) {
+      setIsLoading(false);
+      return;
     }
-
-    if (activeTab === "discover" || session?.user?.id) {
-      loadGroups();
-    } else {
+    setIsLoading(true);
+    try {
+      const url = activeTab === "my_groups" && session?.user?.id
+        ? `/api/groups?my=true&userId=${session.user.id}`
+        : `/api/groups`;
+        
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setGroups(data.groups || []);
+      }
+    } catch (error) {
+      console.error("Failed to load groups:", error);
+    } finally {
       setIsLoading(false);
     }
   }, [activeTab, session]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadGroups();
+  }, [loadGroups]);
 
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
