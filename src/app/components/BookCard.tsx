@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { BookmarkSimple, Star } from "@phosphor-icons/react";
 
 export interface BookCardProps {
@@ -19,6 +20,7 @@ export interface BookCardProps {
 }
 
 export default function BookCard({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   id,
   title,
   authors,
@@ -48,9 +50,11 @@ export default function BookCard({
         background: "var(--bg-tertiary)",
       }}>
         {coverUrl ? (
-          <img
+          <Image
             src={coverUrl}
             alt={title}
+            width={80}
+            height={120}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         ) : (
