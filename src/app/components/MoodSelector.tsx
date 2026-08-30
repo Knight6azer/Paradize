@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 const MOODS = [
   { value: "inspired", emoji: "✨", label: "Inspired" },
   { value: "thoughtful", emoji: "🤔", label: "Thoughtful" },
