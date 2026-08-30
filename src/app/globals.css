@@ -181,6 +181,19 @@ ul, ol {
   --container-lg: 1024px;
   --container-xl: 1200px;
   --container-2xl: 1400px;
+
+  /* Alias tokens — referenced by components, mapped to core tokens */
+  --amber-main: var(--warm-amber);
+  --amber-dark: var(--warm-amber-dark);
+  --teal-main: var(--deep-teal);
+  --teal-dark: var(--deep-teal);
+  --forest-dark: var(--forest-sage-dark);
+  --forest-light: var(--forest-sage-light);
+  --purple-main: var(--info);
+  --success-main: var(--success);
+  --error-main: var(--error);
+  --error-dark: var(--error);
+  --transition-normal: var(--transition-base);
 }
 
 /* ─── Dark Mode ─────────────────────────────────────── */
@@ -466,6 +479,23 @@ h6 { font-size: var(--text-md); font-weight: var(--weight-medium); }
 .badge--error {
   background: rgba(231, 111, 81, 0.1);
   color: var(--error);
+}
+
+.badge--outline {
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+}
+
+.btn--outline {
+  background: transparent;
+  border: 1.5px solid var(--border-medium);
+  color: var(--text-primary);
+}
+
+.btn--outline:hover {
+  border-color: var(--forest-sage);
+  color: var(--forest-sage);
 }
 
 /* ─── Avatar ────────────────────────────────────────── */
