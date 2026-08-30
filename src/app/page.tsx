@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
@@ -16,8 +15,6 @@ import {
   Sparkle,
   Compass,
   Heart,
-  Lightning,
-  Star,
   MapPin,
   GithubLogo,
   TwitterLogo,
@@ -151,7 +148,6 @@ const steps = [
 /* ─── Landing Page Component ───────────────────────── */
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const router = useRouter();
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
@@ -167,12 +163,12 @@ export default function LandingPage() {
       {/* ─── Navbar ────────────────────────────────── */}
       <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
         <div className="navbar__inner">
-          <a href="/" className="navbar__logo">
+          <Link href="/" className="navbar__logo">
             <div className="navbar__logo-icon">
               <BookBookmark size={22} weight="bold" />
             </div>
             Paradize
-          </a>
+          </Link>
 
           <div className="navbar__links">
             <a href="#features" className="navbar__link">
@@ -280,7 +276,7 @@ export default function LandingPage() {
             </motion.p>
 
             <div className={styles.features__grid}>
-              {features.map((feature, i) => (
+              {features.map((feature) => (
                 <motion.div
                   key={feature.title}
                   className={styles["feature-card"]}
@@ -441,12 +437,12 @@ export default function LandingPage() {
         <div className="container">
           <div className={styles.footer__grid}>
             <div>
-              <a href="/" className="navbar__logo">
+              <Link href="/" className="navbar__logo">
                 <div className="navbar__logo-icon">
                   <BookBookmark size={22} weight="bold" />
                 </div>
                 Paradize
-              </a>
+              </Link>
               <p className={styles["footer__brand-desc"]}>
                 The world&apos;s most trusted reading community. Where books
                 become bridges to understanding.
