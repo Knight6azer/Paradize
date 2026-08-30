@@ -1,27 +1,43 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/client";
-import { Books, MagnifyingGlass, BookOpenText, CheckCircle, BookmarkSimple, X } from "@phosphor-icons/react";
+import { Books, MagnifyingGlass, BookOpenText, CheckCircle, X } from "@phosphor-icons/react";
 import BookCard from "@/app/components/BookCard";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import EmptyState from "@/app/components/EmptyState";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+interface ShelfBook {
+  id: string;
+  bookId: string;
+  title: string;
+  subtitle?: string | null;
+  authors: string[];
+  coverUrl?: string | null;
+  genres?: string[];
+  status: string;
+  progressPercent: number;
+  personalRating?: number | null;
+  isFavorite?: boolean;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  pageCount?: number | null;
+  description?: string | null;
+}
 
 type ShelfStatus = "all" | "reading" | "want_to_read" | "completed";
 
 export default function LibraryPage() {
   const { data: session } = useSession();
-  const router = useRouter();
   
   const [activeTab, setActiveTab] = useState<ShelfStatus>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<ShelfBook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
-  const fetchShelf = async () => {
+  const fetchShelf = useCallback(async () => {
     if (!session?.user?.id) return;
     setIsLoading(true);
     try {
@@ -39,11 +55,12 @@ export default function LibraryPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session, activeTab]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchShelf();
-  }, [session, activeTab]);
+  }, [fetchShelf]);
 
   const handleStatusChange = async (userBookId: string, newStatus: string) => {
     setIsUpdating(userBookId);
