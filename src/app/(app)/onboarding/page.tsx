@@ -81,8 +81,8 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error("Failed to save preferences");
       
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
       setLoading(false);
     }
   };
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Welcome to Paradize</h1>
-        <p className={styles.subtitle}>Let's set up your reading profile</p>
+        <p className={styles.subtitle}>Let&apos;s set up your reading profile</p>
       </div>
 
       <div className={styles.progress}>
