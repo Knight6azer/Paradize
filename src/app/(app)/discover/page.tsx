@@ -1,13 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth/client";
 import { MagnifyingGlass, Sparkle, Fire, BookmarkSimple } from "@phosphor-icons/react";
 import BookCard from "@/app/components/BookCard";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import EmptyState from "@/app/components/EmptyState";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+interface BookResult {
+  id?: string;
+  title: string;
+  authors: string[];
+  coverUrl?: string | null;
+  description?: string | null;
+  isbn?: string;
+  genres?: string[];
+  pageCount?: number;
+  publishedDate?: string;
+  publisher?: string;
+  language?: string;
+  subtitle?: string;
+}
+
+interface Recommendation {
+  title: string;
+  author: string;
+  reason: string;
+  question: string;
+}
 
 const GENRE_TAGS = [
   "Fiction", "Non-Fiction", "Science", "Philosophy", 
@@ -20,29 +41,14 @@ export default function DiscoverPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeGenre, setActiveGenre] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<BookResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isRecommending, setIsRecommending] = useState(false);
 
-  // Debounced search
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      handleSearch(searchQuery);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  const handleSearch = async (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) return;
     
     setIsSearching(true);
@@ -58,7 +64,23 @@ export default function DiscoverPage() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
+
+  // Debounced search
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasSearched(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, handleSearch]);
 
   const getAIRecommendations = async () => {
     setIsRecommending(true);
@@ -95,7 +117,7 @@ export default function DiscoverPage() {
     }
   };
 
-  const addToShelf = async (bookData: any, status: string) => {
+  const addToShelf = async (bookData: BookResult, status: string) => {
     if (!session?.user?.id) {
       router.push("/login");
       return;
@@ -223,7 +245,7 @@ export default function DiscoverPage() {
                   <div key={i} style={{ background: "var(--bg-card)", padding: "var(--space-4)", borderRadius: "var(--radius-lg)" }}>
                     <h4 style={{ fontWeight: "var(--weight-bold)", fontSize: "var(--text-lg)", marginBottom: "var(--space-1)" }}>{rec.title}</h4>
                     <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)", marginBottom: "var(--space-3)" }}>By {rec.author}</div>
-                    <p style={{ fontSize: "var(--text-sm)", fontStyle: "italic", marginBottom: "var(--space-2)" }}>"{rec.reason}"</p>
+                    <p style={{ fontSize: "var(--text-sm)", fontStyle: "italic", marginBottom: "var(--space-2)" }}>&ldquo;{rec.reason}&rdquo;</p>
                     <div style={{ fontSize: "var(--text-xs)", color: "var(--forest-sage)", fontWeight: "var(--weight-semibold)" }}>Prompt: {rec.question}</div>
                   </div>
                 ))}
