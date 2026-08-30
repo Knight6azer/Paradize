@@ -51,8 +51,8 @@ export default function NewDiscussionPage() {
 
       const { discussion } = await res.json();
       router.push(`/discussions/${discussion.id}`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create discussion");
       setIsSubmitting(false);
     }
   };
