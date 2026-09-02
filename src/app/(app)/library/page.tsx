@@ -16,7 +16,7 @@ interface ShelfBook {
   authors: string[];
   coverUrl?: string | null;
   genres?: string[];
-  status: string;
+  status: "want_to_read" | "reading" | "completed" | "abandoned";
   progressPercent: number;
   personalRating?: number | null;
   isFavorite?: boolean;
