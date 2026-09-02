@@ -69,8 +69,8 @@ export default function DiscoverPage() {
   // Debounced search
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchResults([]);
       // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearchResults([]);
       setHasSearched(false);
       return;
     }
