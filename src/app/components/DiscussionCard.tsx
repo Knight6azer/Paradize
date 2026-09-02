@@ -10,8 +10,8 @@ export interface DiscussionCardProps {
   authorName: string;
   authorInitial: string;
   discussionType: string;
-  bookTitle?: string;
-  groupName?: string;
+  bookTitle?: string | null;
+  groupName?: string | null;
   upvotes: number;
   replyCount: number;
   createdAt: string;
