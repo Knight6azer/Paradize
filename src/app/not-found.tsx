@@ -33,7 +33,7 @@ export default function NotFound() {
       <h1
         style={{
           fontSize: "var(--text-5xl)",
-          fontWeight: "var(--weight-black)",
+          fontWeight: "var(--weight-extrabold)",
           fontFamily: "var(--font-heading)",
           marginBottom: "var(--space-4)",
           background: "linear-gradient(135deg, var(--forest-sage), var(--teal-main))",
