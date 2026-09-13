@@ -1,9 +1,21 @@
-import { betterAuth } from "better-auth";
+﻿import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { getDb } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
+  advanced: {
+    database: {
+      generateId: (options) => {
+        // Let the database generate UUIDs for the users table
+        if (options.model === "user") {
+          return false;
+        }
+        // Generate UUIDs for session/account/verification tables
+        return crypto.randomUUID();
+      },
+    },
+  },
   database: drizzleAdapter(getDb(), {
     provider: "pg",
     schema: {
@@ -42,3 +54,4 @@ export const auth = betterAuth({
     }
   }
 });
+
