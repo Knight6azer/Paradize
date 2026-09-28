@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { discussions, users, books, readingGroups } from "@/lib/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
+import { getServerSession } from "@/lib/auth/session";
+import DOMPurify from "isomorphic-dompurify";
 
 /**
  * GET /api/discussions?type=...&bookId=...&groupId=...&limit=...&offset=...
@@ -60,16 +62,23 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/discussions — Create new discussion
- * Body: { authorId, title, content, discussionType, bookId?, groupId? }
+ * Body: { title, content, discussionType, bookId?, groupId? }
+ * User ID is extracted from the server-side session (not client-provided).
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { authorId, title, content, discussionType = "insight", bookId, groupId } = body;
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!authorId || !title || !content) {
+    const body = await request.json();
+    const { title, content, discussionType = "insight", bookId, groupId } = body;
+
+    if (!title || !content) {
       return NextResponse.json(
-        { error: "authorId, title, and content are required" },
+        { error: "Title and content are required" },
         { status: 400 }
       );
     }
@@ -81,14 +90,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sanitize user-generated content
+    const sanitizedTitle = DOMPurify.sanitize(title, { ALLOWED_TAGS: [] });
+    const sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+
     const db = getDb();
 
     const result = await db
       .insert(discussions)
       .values({
-        authorId,
-        title,
-        content,
+        authorId: session.user.id, // Use session user ID, never client-provided
+        title: sanitizedTitle,
+        content: sanitizedContent,
         discussionType: discussionType as typeof discussions.discussionType.enumValues[number],
         bookId: bookId || null,
         groupId: groupId || null,

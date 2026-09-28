@@ -1,530 +1,700 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import {
   BookOpenText,
   Users,
-  Brain,
-  ChartLineUp,
-  ChatTeardropDots,
-  Trophy,
-  ArrowRight,
-  BookBookmark,
-  Sparkle,
-  Compass,
-  Heart,
+  ChatCircleDots,
+  CalendarBlank,
   MapPin,
-  GithubLogo,
+  Play,
+  ArrowRight,
+  X,
+  EnvelopeSimple,
+  UsersThree,
+  TrendUp,
+  CalendarCheck,
+  Coffee,
+  CheckCircle,
+  List,
+  InstagramLogo,
   TwitterLogo,
   LinkedinLogo,
+  YoutubeLogo,
+  Sparkle
 } from "@phosphor-icons/react";
 import styles from "./page.module.css";
 
-/* ─── Animation Variants ───────────────────────────── */
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
-  }),
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.2 },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
-  },
-};
-
-/* ─── Features Data ────────────────────────────────── */
-const features = [
+/* ─── 6 Horizontal Feature Pills ───────────────────── */
+const featurePills = [
   {
-    icon: <BookOpenText size={28} weight="duotone" />,
-    iconClass: "sage",
-    title: "Smart Book Library",
-    description:
-      "Discover your next transformative read. AI-powered recommendations based on your growth goals, not just genres.",
+    icon: <ChatCircleDots size={22} weight="duotone" />,
+    title: "Thoughtful Discussions",
+    desc: "Dive deep into curated discussions that challenge your thinking."
   },
   {
-    icon: <ChatTeardropDots size={28} weight="duotone" />,
-    iconClass: "amber",
-    title: "Meaningful Discussions",
-    description:
-      "Go beyond reviews. Structured conversations that reward depth, evidence, and respectful disagreement.",
+    icon: <UsersThree size={22} weight="duotone" />,
+    title: "Multiple Perspectives",
+    desc: "Explore every idea from different lenses and backgrounds."
   },
   {
-    icon: <Users size={28} weight="duotone" />,
-    iconClass: "teal",
-    title: "Reading Groups",
-    description:
-      "Join intimate groups of 5-20 readers. Shared schedules, chapter discussions, and accountability partners.",
+    icon: <BookOpenText size={22} weight="duotone" />,
+    title: "Diverse Genres",
+    desc: "From fiction to philosophy, science to history—read what expands you."
   },
   {
-    icon: <Brain size={28} weight="duotone" />,
-    iconClass: "info",
-    title: "Reflection Journal",
-    description:
-      "Private, encrypted space to process what you read. AI-prompted reflections turn books into lasting wisdom.",
+    icon: <TrendUp size={22} weight="duotone" />,
+    title: "Personal Growth",
+    desc: "Track your journey, reflect on insights, and become your best self."
   },
   {
-    icon: <ChartLineUp size={28} weight="duotone" />,
-    iconClass: "success",
-    title: "Growth Dashboard",
-    description:
-      "Track your transformation — not just books completed, but perspectives explored, skills built, and ideas connected.",
+    icon: <CalendarCheck size={22} weight="duotone" />,
+    title: "Events & Meetups",
+    desc: "Join live sessions online and offline. Connect. Learn. Belong."
   },
   {
-    icon: <Trophy size={28} weight="duotone" />,
-    iconClass: "error",
-    title: "Verified Achievements",
-    description:
-      "Earn badges by proving genuine understanding — not just finishing pages. Your insights become your credentials.",
-  },
+    icon: <Coffee size={22} weight="duotone" />,
+    title: "Offline Cafés",
+    desc: "Real conversations. Great coffee. Lifelong connections."
+  }
 ];
 
-/* ─── Values Data ──────────────────────────────────── */
-const values = [
-  {
-    icon: "🔍",
-    title: "Curiosity Over Certainty",
-    desc: "The best readers ask questions, not just collect answers.",
-  },
-  {
-    icon: "🤝",
-    title: "Respect Over Agreement",
-    desc: "Disagree with ideas, never with people. Every perspective teaches.",
-  },
-  {
-    icon: "🌱",
-    title: "Growth Over Ego",
-    desc: "Being wrong is the first step to being right. Celebrate learning.",
-  },
-  {
-    icon: "🏗️",
-    title: "Understanding Over Winning",
-    desc: "Seek to comprehend, not to convince. Conversations, not competitions.",
-  },
-];
-
-/* ─── Steps Data ───────────────────────────────────── */
-const steps = [
-  {
-    num: 1,
-    title: "Discover",
-    desc: "Take our reading personality quiz. Get AI-curated book recommendations tailored to your growth goals.",
-  },
-  {
-    num: 2,
-    title: "Read & Reflect",
-    desc: "Track your reading. Journal your thoughts. Connect ideas across books with your personal Knowledge Map.",
-  },
-  {
-    num: 3,
-    title: "Discuss & Grow",
-    desc: "Join reading groups. Engage in meaningful discussions. Earn reputation through quality, not quantity.",
-  },
-];
-
-/* ─── Landing Page Component ───────────────────────── */
 export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
+  const [eventJoined, setEventJoined] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [newsletterMsg, setNewsletterMsg] = useState("");
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail || !newsletterEmail.includes("@")) {
+      setNewsletterStatus("error");
+      setNewsletterMsg("Please enter a valid email address.");
+      return;
+    }
+    setNewsletterStatus("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNewsletterStatus("success");
+        setNewsletterMsg(data.message || "You're subscribed! Welcome to Paradize reads.");
+        setNewsletterEmail("");
+      } else {
+        setNewsletterStatus("error");
+        setNewsletterMsg(data.error || "Subscription failed. Please try again.");
+      }
+    } catch {
+      setNewsletterStatus("error");
+      setNewsletterMsg("Failed to connect. Please try again.");
+    }
+  };
 
   return (
-    <>
-      {/* ─── Navbar ────────────────────────────────── */}
-      <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
-        <div className="navbar__inner">
-          <Link href="/" className="navbar__logo">
-            <div className="navbar__logo-icon">
-              <BookBookmark size={22} weight="bold" />
+    <div className={styles.page}>
+      {/* ─── Navigation ─────────────────────────────── */}
+      <header className={styles.nav}>
+        <div className={styles.nav__inner}>
+          <Link href="/" className={styles.nav__brand} aria-label="Paradize Home">
+            <div className={styles.nav__logo_icon}>
+              <BookOpenText size={32} weight="duotone" />
             </div>
-            Paradize
+            <div className={styles.nav__brand_text}>
+              <span className={styles.nav__brand_name}>Paradize</span>
+              <span className={styles.nav__brand_tagline}>Read. Reflect. Grow. Together.</span>
+            </div>
           </Link>
 
-          <div className="navbar__links">
-            <a href="#features" className="navbar__link">
-              Features
-            </a>
-            <a href="#values" className="navbar__link">
-              Values
-            </a>
-            <a href="#how-it-works" className="navbar__link">
-              How It Works
-            </a>
-          </div>
-
-          <div className="navbar__actions">
-            <Link href="/login" className="btn btn--ghost">Sign In</Link>
-            <Link href="/register" className="btn btn--primary">
-              <Sparkle size={16} weight="fill" />
-              Join Paradize
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* ─── Hero Section ──────────────────────────── */}
-      <motion.section className={styles.hero} style={{ opacity: heroOpacity }}>
-        <div className={styles.hero__bg}>
-          <div
-            className={`gradient-orb gradient-orb--sage ${styles["hero__orb-1"]} animate-float`}
-          />
-          <div
-            className={`gradient-orb gradient-orb--amber ${styles["hero__orb-2"]} animate-float delay-200`}
-          />
-          <div
-            className={`gradient-orb gradient-orb--teal ${styles["hero__orb-3"]} animate-pulse-soft`}
-          />
-        </div>
-
-        <motion.div
-          className={styles.hero__content}
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          style={{ scale: heroScale }}
-        >
-          <motion.div className={styles.hero__badge} variants={fadeInUp} custom={0}>
-            <span className={styles["hero__badge-dot"]} />
-            Launching in Mumbai — Join the movement
-          </motion.div>
-
-          <motion.h1 className={styles.hero__title} variants={fadeInUp} custom={1}>
-            Where Readers Become{" "}
-            <span className={styles["hero__title-accent"]}>Thinkers</span>
-          </motion.h1>
-
-          <motion.p className={styles.hero__subtitle} variants={fadeInUp} custom={2}>
-            Paradize is the community where books spark meaningful conversations,
-            thoughtful reflection, and genuine personal growth. Read not to be
-            smarter than others — but to better understand yourself, others, and
-            the world.
-          </motion.p>
-
-          <motion.div className={styles.hero__actions} variants={fadeInUp} custom={3}>
-            <Link href="/register" className="btn btn--primary btn--lg">
-              Start Your Reading Journey
-              <ArrowRight size={20} weight="bold" />
-            </Link>
-            <Link href="/discover" className="btn btn--secondary btn--lg">
-              <Compass size={20} />
-              Explore the Community
-            </Link>
-          </motion.div>
-
-          <motion.div className={styles.hero__stats} variants={fadeInUp} custom={4}>
-            <div className={styles.hero__stat}>
-              <div className={styles["hero__stat-number"]}>1,000+</div>
-              <div className={styles["hero__stat-label"]}>Books Discussed</div>
-            </div>
-            <div className={styles.hero__stat}>
-              <div className={styles["hero__stat-number"]}>50+</div>
-              <div className={styles["hero__stat-label"]}>Reading Groups</div>
-            </div>
-            <div className={styles.hero__stat}>
-              <div className={styles["hero__stat-number"]}>∞</div>
-              <div className={styles["hero__stat-label"]}>Perspectives Shared</div>
-            </div>
-          </motion.div>
-        </motion.div>
-      </motion.section>
-
-      {/* ─── Features Section ──────────────────────── */}
-      <section id="features" className={styles.features}>
-        <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 className="section-title" variants={fadeInUp} custom={0}>
-              Built for Transformation, Not Consumption
-            </motion.h2>
-            <motion.p className="section-subtitle" variants={fadeInUp} custom={1}>
-              Every feature is designed to help you grow — not just scroll.
-              Powered by AI that enhances human connection.
-            </motion.p>
-
-            <div className={styles.features__grid}>
-              {features.map((feature) => (
-                <motion.div
-                  key={feature.title}
-                  className={styles["feature-card"]}
-                  variants={scaleIn}
-                  whileHover={{ y: -4 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                >
-                  <div
-                    className={`${styles["feature-card__icon"]} ${
-                      styles[`feature-card__icon--${feature.iconClass}`]
-                    }`}
-                  >
-                    {feature.icon}
-                  </div>
-                  <h3 className={styles["feature-card__title"]}>
-                    {feature.title}
-                  </h3>
-                  <p className={styles["feature-card__description"]}>
-                    {feature.description}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── Values Section ────────────────────────── */}
-      <section id="values" className={styles.values}>
-        <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 className="section-title" variants={fadeInUp} custom={0}>
-              Our Guiding Principles
-            </motion.h2>
-            <motion.p className="section-subtitle" variants={fadeInUp} custom={1}>
-              These aren&apos;t just words on a page. They shape every feature,
-              every algorithm, every interaction.
-            </motion.p>
-
-            <div className={styles.values__grid}>
-              {values.map((value, i) => (
-                <motion.div
-                  key={value.title}
-                  className={styles["value-item"]}
-                  variants={fadeInUp}
-                  custom={i}
-                >
-                  <div className={styles["value-item__icon"]}>{value.icon}</div>
-                  <div>
-                    <h3 className={styles["value-item__title"]}>
-                      {value.title}
-                    </h3>
-                    <p className={styles["value-item__desc"]}>{value.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── How It Works ──────────────────────────── */}
-      <section id="how-it-works" className={styles["how-it-works"]}>
-        <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-          >
-            <motion.h2 className="section-title" variants={fadeInUp} custom={0}>
-              Your Journey in Three Steps
-            </motion.h2>
-            <motion.p className="section-subtitle" variants={fadeInUp} custom={1}>
-              From curious reader to confident thinker — we guide every step.
-            </motion.p>
-
-            <div className={styles.steps}>
-              {steps.map((step, i) => (
-                <motion.div
-                  key={step.num}
-                  className={styles.step}
-                  variants={fadeInUp}
-                  custom={i + 1}
-                  whileHover={{ y: -4 }}
-                >
-                  <div className={styles.step__number}>{step.num}</div>
-                  <h3 className={styles.step__title}>{step.title}</h3>
-                  <p className={styles.step__desc}>{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ─── Quote Section ─────────────────────────── */}
-      <section className={styles["quote-section"]}>
-        <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-          >
-            <motion.p
-              className={styles["quote-section__text"]}
-              variants={fadeInUp}
-              custom={0}
+          <nav className={styles.nav__links} aria-label="Main Navigation">
+            <Link href="/" className={`${styles.nav__link} ${styles["nav__link--active"]}`}>Home</Link>
+            <Link href="/groups" className={styles.nav__link}>Community</Link>
+            <Link href="/discussions" className={styles.nav__link}>Discussions</Link>
+            <Link href="/groups" className={styles.nav__link}>Events</Link>
+            <Link href="/discover" className={styles.nav__link}>Resources</Link>
+            <button
+              onClick={() => setHowItWorksOpen(true)}
+              className={styles.nav__link}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              &ldquo;Reading is not merely about consuming books — it&apos;s
-              about becoming wiser, kinder, and more capable of contributing
-              positively to society.&rdquo;
-            </motion.p>
-            <motion.p
-              className={styles["quote-section__author"]}
-              variants={fadeInUp}
-              custom={1}
-            >
-              — The Paradize Manifesto
-            </motion.p>
-          </motion.div>
-        </div>
-      </section>
+              About Us
+            </button>
+          </nav>
 
-      {/* ─── CTA Section ───────────────────────────── */}
-      <section className={styles.cta}>
-        <div className="container">
-          <motion.div
-            className={styles.cta__card}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <h2 className={styles.cta__title}>
-              Ready to Transform Your Reading Life?
-            </h2>
-            <p className={styles.cta__subtitle}>
-              Join hundreds of curious minds in Mumbai who are reading deeper,
-              thinking sharper, and growing together.
+          <div className={styles.nav__actions}>
+            <Link href="/login" className={styles.nav__btn_login}>
+              Log In
+            </Link>
+            <Link href="/register" className={styles.nav__btn_join}>
+              Join Now
+            </Link>
+            <button
+              className={styles.nav__mobile_toggle}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <List size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div style={{
+            padding: "1rem 2rem 1.5rem",
+            background: "var(--bg-card)",
+            borderBottom: "1px solid var(--border-light)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
+          }}>
+            <Link href="/" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Community</Link>
+            <Link href="/discussions" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Discussions</Link>
+            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Events</Link>
+            <Link href="/discover" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Resources</Link>
+            <button
+              onClick={() => { setMobileMenuOpen(false); setHowItWorksOpen(true); }}
+              className={styles.nav__link}
+              style={{ textAlign: "left", background: "none", border: "none", cursor: "pointer" }}
+            >
+              About Us
+            </button>
+            <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
+              <Link href="/login" className={styles.nav__btn_login} style={{ flex: 1, textAlign: "center" }}>Log In</Link>
+              <Link href="/register" className={styles.nav__btn_join} style={{ flex: 1, textAlign: "center" }}>Join Now</Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ─── Hero Section ───────────────────────────── */}
+      <section className={styles.hero}>
+        <div className={styles.hero__container}>
+          {/* Left Column: Headline, Copy, CTAs, Stats */}
+          <div className={styles.hero__content}>
+            <div className={styles.hero__badge}>
+              <Users size={16} weight="bold" />
+              <span>A COMMUNITY FOR CURIOUS MINDS</span>
+            </div>
+
+            <h1 className={styles.hero__title}>
+              Read to Understand.<br />
+              Discuss to <span className={styles.hero__title_accent}>Grow.</span>
+            </h1>
+
+            <p className={styles.hero__subtitle}>
+              A virtual ground for readers to explore ideas, share perspectives, and grow together.
+              Different books. Multiple viewpoints. One journey of constant growth.
             </p>
-            <Link href="/register" className={styles.cta__btn}>
-              Join Paradize — It&apos;s Free
-              <ArrowRight size={20} weight="bold" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* ─── Footer ────────────────────────────────── */}
-      <footer className={styles.footer}>
-        <div className="container">
-          <div className={styles.footer__grid}>
-            <div>
-              <Link href="/" className="navbar__logo">
-                <div className="navbar__logo-icon">
-                  <BookBookmark size={22} weight="bold" />
-                </div>
-                Paradize
+            <div className={styles.hero__actions}>
+              <Link href="/register" className={styles.btn__hero_primary}>
+                Join the Community
               </Link>
-              <p className={styles["footer__brand-desc"]}>
-                The world&apos;s most trusted reading community. Where books
-                become bridges to understanding.
-              </p>
-              <div className={styles["mumbai-banner"]}>
-                <MapPin size={14} weight="fill" />
-                Made with <Heart size={12} weight="fill" color="#E76F51" /> in
-                Mumbai
-              </div>
+              <button
+                type="button"
+                className={styles.btn__hero_secondary}
+                onClick={() => setHowItWorksOpen(true)}
+              >
+                <Play size={16} weight="fill" />
+                How It Works
+              </button>
             </div>
 
-            <div>
-              <h4 className={styles["footer__col-title"]}>Platform</h4>
-              <div className={styles.footer__links}>
-                <a href="#features" className={styles.footer__link}>
-                  Features
-                </a>
-                <Link href="/library" className={styles.footer__link}>
-                  Book Library
-                </Link>
-                <Link href="/groups" className={styles.footer__link}>
-                  Reading Groups
-                </Link>
-                <Link href="/discussions" className={styles.footer__link}>
-                  Discussions
-                </Link>
+            <div className={styles.hero__stats}>
+              <div className={styles.hero__stat_item}>
+                <div className={styles.hero__stat_icon}>
+                  <Users size={22} weight="duotone" />
+                </div>
+                <div>
+                  <div className={styles.hero__stat_number}>10K+</div>
+                  <div className={styles.hero__stat_label}>Members</div>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h4 className={styles["footer__col-title"]}>Community</h4>
-              <div className={styles.footer__links}>
-                <a href="#values" className={styles.footer__link}>
-                  Our Values
-                </a>
-                <Link href="/discover" className={styles.footer__link}>
-                  Discover Books
-                </Link>
-                <Link href="/groups" className={styles.footer__link}>
-                  Mumbai Meetups
-                </Link>
-                <Link href="/journal" className={styles.footer__link}>
-                  Reflection Journal
-                </Link>
+              <div className={styles.hero__stat_item}>
+                <div className={styles.hero__stat_icon}>
+                  <ChatCircleDots size={22} weight="duotone" />
+                </div>
+                <div>
+                  <div className={styles.hero__stat_number}>250+</div>
+                  <div className={styles.hero__stat_label}>Active Discussions</div>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h4 className={styles["footer__col-title"]}>Legal</h4>
-              <div className={styles.footer__links}>
-                <a href="#" className={styles.footer__link}>
-                  Privacy Policy
-                </a>
-                <a href="#" className={styles.footer__link}>
-                  Terms of Service
-                </a>
-                <a href="#" className={styles.footer__link}>
-                  DPDPA Compliance
-                </a>
-                <a href="#" className={styles.footer__link}>
-                  Contact
-                </a>
+              <div className={styles.hero__stat_item}>
+                <div className={styles.hero__stat_icon}>
+                  <CalendarBlank size={22} weight="duotone" />
+                </div>
+                <div>
+                  <div className={styles.hero__stat_number}>50+</div>
+                  <div className={styles.hero__stat_label}>Monthly Events</div>
+                </div>
+              </div>
+
+              <div className={styles.hero__stat_item}>
+                <div className={styles.hero__stat_icon}>
+                  <MapPin size={22} weight="duotone" />
+                </div>
+                <div>
+                  <div className={styles.hero__stat_number}>25+</div>
+                  <div className={styles.hero__stat_label}>Cities (Offline)</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className={styles.footer__bottom}>
-            <span>© {new Date().getFullYear()} Paradize LLP. All rights reserved.</span>
-            <div className={styles.footer__social}>
-              <a href="#" className={styles["footer__social-link"]} aria-label="Twitter">
-                <TwitterLogo size={20} weight="fill" />
-              </a>
-              <a href="#" className={styles["footer__social-link"]} aria-label="LinkedIn">
-                <LinkedinLogo size={20} weight="fill" />
-              </a>
-              <a href="#" className={styles["footer__social-link"]} aria-label="GitHub">
-                <GithubLogo size={20} weight="fill" />
-              </a>
+          {/* Right Column: Hero Photograph & Overlaid Quote Card */}
+          <div className={styles.hero__visual}>
+            <Image
+              src="/images/hero-readers.jpg"
+              alt="Readers enjoying books and warm conversation in an inviting library cafe"
+              width={720}
+              height={540}
+              priority
+              className={styles.hero__image}
+            />
+            <div className={styles.hero__quote_card}>
+              <div className={styles.hero__quote_icon}>&ldquo;</div>
+              <div className={styles.hero__quote_text}>
+                We don&apos;t read to agree.<br />
+                We read to understand.
+              </div>
+              <div className={styles.hero__quote_author}>
+                — Paradize Community
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 6 Horizontal Feature Pills ─────────────── */}
+      <section className={styles.features_bar} aria-label="Community Pillars">
+        <div className={styles.features_grid}>
+          {featurePills.map((feat) => (
+            <div key={feat.title} className={styles.feature_pill}>
+              <div className={styles.feature_pill__icon_wrap}>
+                {feat.icon}
+              </div>
+              <h2 className={styles.feature_pill__title}>{feat.title}</h2>
+              <p className={styles.feature_pill__desc}>{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── 4-Card Lower Grid (Community Showcase) ─── */}
+      <section className={styles.showcase} aria-label="Community Showcase">
+        <div className={styles.showcase_grid}>
+          {/* Card 1: Currently Reading Together */}
+          <div className={styles.card_widget}>
+            <div className={styles.card_widget__header}>
+              <span className={styles.card_widget__title}>Currently Reading Together</span>
+              <Link href="/groups" className={styles.card_widget__link}>
+                View all <ArrowRight size={13} weight="bold" />
+              </Link>
+            </div>
+
+            <div className={styles.reading_item}>
+              <Image
+                src="/images/sapiens-cover.jpg"
+                alt="Sapiens book cover"
+                width={76}
+                height={108}
+                className={styles.book_thumb}
+              />
+              <div className={styles.book_info}>
+                <h3 className={styles.book_title}>Sapiens</h3>
+                <div className={styles.book_subtitle}>A Brief History of Humankind</div>
+                <div className={styles.book_author}>Yuval Noah Harari</div>
+                <div className={styles.progress_row}>
+                  <span>Chapter 6 of 20</span>
+                  <span className={styles.progress_pct}>30%</span>
+                </div>
+                <div className={styles.progress_bar}>
+                  <div className={styles.progress_fill} style={{ width: "30%" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Upcoming Event */}
+          <div className={styles.card_widget}>
+            <div className={styles.card_widget__header}>
+              <span className={styles.card_widget__title}>Upcoming Event</span>
+              <Link href="/groups" className={styles.card_widget__link}>
+                View all <ArrowRight size={13} weight="bold" />
+              </Link>
+            </div>
+
+            <div className={styles.event_wrap}>
+              <div className={styles.event_thumb_box}>
+                <Image
+                  src="/images/event-discussion.jpg"
+                  alt="Thoughtful conversation event"
+                  width={300}
+                  height={120}
+                  className={styles.event_thumb}
+                />
+                <span className={styles.event_badge}>LIVE DISCUSSION</span>
+              </div>
+              <h3 className={styles.event_title}>The Psychology of Decision Making</h3>
+              <div className={styles.event_date}>Sat, 1 June 2024 &bull; 7:00 PM IST</div>
+              <div className={styles.event_footer}>
+                <div className={styles.attendees_row}>
+                  <div className={styles.avatar_stack}>
+                    <div className={styles.stack_avatar}>U</div>
+                    <div className={styles.stack_avatar}>A</div>
+                    <div className={styles.stack_avatar}>R</div>
+                  </div>
+                  <span className={styles.attendees_count}>+120 going</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.btn__join_event}
+                  onClick={() => setEventJoined(true)}
+                >
+                  {eventJoined ? "Joined!" : "Join Event"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: What Members Are Saying */}
+          <div className={styles.card_widget}>
+            <div className={styles.card_widget__header}>
+              <span className={styles.card_widget__title}>What Members Are Saying</span>
+              <Link href="/discussions" className={styles.card_widget__link}>
+                View all <ArrowRight size={13} weight="bold" />
+              </Link>
+            </div>
+
+            <div className={styles.testimonial_wrap}>
+              <div className={styles.quote_mark}>&ldquo;</div>
+              <blockquote className={styles.testimonial_quote}>
+                Paradize has completely changed the way I read and think. The discussions are insightful, respectful, and truly inspiring.
+              </blockquote>
+              <div className={styles.member_row}>
+                <Image
+                  src="/images/ananya-avatar.jpg"
+                  alt="Ananya P. profile"
+                  width={38}
+                  height={38}
+                  className={styles.member_avatar}
+                />
+                <div>
+                  <div className={styles.member_name}>Ananya P.</div>
+                  <div className={styles.member_joined}>Member since 2023</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Your Journey */}
+          <div className={styles.card_widget}>
+            <div className={styles.card_widget__header}>
+              <span className={styles.card_widget__title}>Your Journey</span>
+            </div>
+
+            <div className={styles.journey_wrap}>
+              <div className={styles.journey_top}>
+                <div className={styles.journey_ring_box}>
+                  <svg className={styles.journey_ring_svg} viewBox="0 0 80 80">
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="34"
+                      fill="none"
+                      strokeWidth="7"
+                      className={styles.journey_ring_bg}
+                    />
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="34"
+                      fill="none"
+                      strokeWidth="7"
+                      strokeLinecap="round"
+                      className={styles.journey_ring_val}
+                    />
+                  </svg>
+                  <span className={styles.journey_pct_text}>72%</span>
+                </div>
+
+                <div className={styles.journey_metrics}>
+                  <div className={styles.metric_item}>
+                    <span className={styles.metric_label}>Books Read</span>
+                    <span className={styles.metric_val}>12</span>
+                  </div>
+                  <div className={styles.metric_item}>
+                    <span className={styles.metric_label}>Discussions Joined</span>
+                    <span className={styles.metric_val}>45</span>
+                  </div>
+                  <div className={styles.metric_item}>
+                    <span className={styles.metric_label}>Insights Shared</span>
+                    <span className={styles.metric_val}>23</span>
+                  </div>
+                  <div className={styles.metric_item}>
+                    <span className={styles.metric_label}>Growth Streak</span>
+                    <span className={styles.metric_val}>18 weeks</span>
+                  </div>
+                </div>
+              </div>
+
+              <Link href="/dashboard" className={styles.btn__journey}>
+                Continue Your Journey
+                <ArrowRight size={14} weight="bold" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Newsletter Bar ─────────────────────────── */}
+      <section className={styles.newsletter_section} aria-label="Newsletter">
+        <div className={styles.newsletter_card}>
+          <div className={styles.newsletter_left}>
+            <div className={styles.newsletter_icon_box}>
+              <EnvelopeSimple size={26} weight="duotone" />
+            </div>
+            <div>
+              <h2 className={styles.newsletter_heading}>Ideas in your inbox. Growth in your life.</h2>
+              <p className={styles.newsletter_subheading}>Weekly reads, discussion highlights, and exclusive invites.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleNewsletterSubmit} className={styles.newsletter_form}>
+            {newsletterStatus === "success" ? (
+              <div className={styles.newsletter_success}>
+                <CheckCircle size={20} weight="fill" style={{ marginRight: 6, verticalAlign: "middle" }} />
+                {newsletterMsg}
+              </div>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  className={styles.newsletter_input}
+                  required
+                  disabled={newsletterStatus === "loading"}
+                />
+                <button
+                  type="submit"
+                  className={styles.newsletter_btn}
+                  disabled={newsletterStatus === "loading"}
+                >
+                  {newsletterStatus === "loading" ? "Subscribing..." : "Subscribe"}
+                </button>
+              </>
+            )}
+          </form>
+        </div>
+        {newsletterStatus === "error" && (
+          <p style={{ color: "var(--error)", fontSize: "0.85rem", marginTop: "0.5rem", paddingLeft: "1rem" }}>
+            {newsletterMsg}
+          </p>
+        )}
+      </section>
+
+      {/* ─── Footer ─────────────────────────────────── */}
+      <footer className={styles.footer}>
+        <div className={styles.footer_inner}>
+          <div className={styles.footer_top}>
+            <div className={styles.footer_brand}>
+              <div className={styles.footer_logo_row}>
+                <BookOpenText size={24} weight="duotone" color="var(--forest-sage)" />
+                <span>Paradize</span>
+              </div>
+              <div className={styles.footer_copyright}>
+                &copy; {new Date().getFullYear()} Paradize Community. All rights reserved.
+              </div>
+            </div>
+
+            <div className={styles.footer_nav_group}>
+              <span className={styles.footer_group_title}>Quick Links</span>
+              <nav className={styles.footer_nav_links} aria-label="Footer Quick Links">
+                <Link href="/groups" className={styles.footer_link}>Community</Link>
+                <Link href="/groups" className={styles.footer_link}>Events</Link>
+                <Link href="/discover" className={styles.footer_link}>Resources</Link>
+                <button
+                  onClick={() => setFaqOpen(true)}
+                  className={styles.footer_link}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                >
+                  FAQ
+                </button>
+                <a href="mailto:support@paradize.club" className={styles.footer_link}>Contact Us</a>
+              </nav>
+            </div>
+
+            <div className={styles.footer_socials_wrap}>
+              <div className={styles.footer_socials}>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className={styles.footer_social_icon} aria-label="Instagram">
+                  <InstagramLogo size={20} weight="fill" />
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className={styles.footer_social_icon} aria-label="Twitter">
+                  <TwitterLogo size={20} weight="fill" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.footer_social_icon} aria-label="LinkedIn">
+                  <LinkedinLogo size={20} weight="fill" />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className={styles.footer_social_icon} aria-label="YouTube">
+                  <YoutubeLogo size={20} weight="fill" />
+                </a>
+              </div>
+              <div className={styles.footer_motto}>
+                <span>Built for readers. Driven by conversations.</span>
+                <span>🌿</span>
+              </div>
             </div>
           </div>
         </div>
       </footer>
-    </>
+
+      {/* ─── How It Works Modal ─────────────────────── */}
+      {howItWorksOpen && (
+        <div className={styles.modal_overlay} onClick={() => setHowItWorksOpen(false)}>
+          <div className={styles.modal_card} onClick={(e) => e.stopPropagation()}>
+            <button
+              className={styles.modal_close}
+              onClick={() => setHowItWorksOpen(false)}
+              aria-label="Close dialog"
+            >
+              <X size={20} />
+            </button>
+            <h2 className={styles.modal_title}>How Paradize Works</h2>
+            <p className={styles.modal_body}>
+              Paradize is built around a simple, powerful cycle designed to turn pages into enduring understanding.
+            </p>
+
+            <div className={styles.modal_steps}>
+              <div className={styles.modal_step}>
+                <div className={styles.modal_step_num}>1</div>
+                <div>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
+                    Discover What Matters
+                  </h3>
+                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                    Find books aligned with your intellectual curiosity and growth goals—curated by readers, not algorithms trying to sell.
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.modal_step}>
+                <div className={styles.modal_step_num}>2</div>
+                <div>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
+                    Read & Reflect Privately
+                  </h3>
+                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                    Capture chapter notes and insights in your private Reflection Journal with guided prompts designed for long-term retention.
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.modal_step}>
+                <div className={styles.modal_step_num}>3</div>
+                <div>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
+                    Discuss & Grow Together
+                  </h3>
+                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                    Join cohort reading groups and local cafe meetups in Mumbai. Engage in structured, respectful discussions where depth is celebrated.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+              <Link
+                href="/register"
+                className={styles.btn__hero_primary}
+                style={{ flex: 1, textAlign: "center" }}
+                onClick={() => setHowItWorksOpen(false)}
+              >
+                Join the Community — It&apos;s Free
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── FAQ Modal ──────────────────────────────── */}
+      {faqOpen && (
+        <div className={styles.modal_overlay} onClick={() => setFaqOpen(false)}>
+          <div className={styles.modal_card} onClick={(e) => e.stopPropagation()}>
+            <button
+              className={styles.modal_close}
+              onClick={() => setFaqOpen(false)}
+              aria-label="Close dialog"
+            >
+              <X size={20} />
+            </button>
+            <h2 className={styles.modal_title}>Frequently Asked Questions</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+              <div>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>Is Paradize free to join?</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+                  Yes, Paradize is 100% free for readers. Our community is open to everyone passionate about books and ideas.
+                </p>
+              </div>
+              <div>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>Where are offline meetups held?</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+                  We host weekend reading cafes across Mumbai (Bandra, Colaba, Powai) with additional chapters launching in Pune and Bangalore.
+                </p>
+              </div>
+              <div>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>How do reading groups work?</h4>
+                <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+                  Groups read 2–3 chapters per week, sharing weekly reflections and meeting virtually or in-person for chapter deep-dives.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Event Joined Confirmation Toast ────────── */}
+      {eventJoined && (
+        <div style={{
+          position: "fixed",
+          bottom: "1.5rem",
+          right: "1.5rem",
+          backgroundColor: "var(--forest-sage)",
+          color: "#ffffff",
+          padding: "0.85rem 1.35rem",
+          borderRadius: "var(--radius-full)",
+          boxShadow: "var(--shadow-lg)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          fontSize: "0.88rem",
+          fontWeight: 600,
+          animation: "fadeInUp 0.3s ease"
+        }}>
+          <CheckCircle size={20} weight="fill" />
+          <span>You&apos;re registered for &ldquo;The Psychology of Decision Making&rdquo;!</span>
+          <button
+            onClick={() => setEventJoined(false)}
+            style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", marginLeft: "0.5rem" }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

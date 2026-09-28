@@ -2,22 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { reflections, books } from "@/lib/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
+import { getServerSession } from "@/lib/auth/session";
+import DOMPurify from "isomorphic-dompurify";
 
 /**
- * GET /api/reflections?userId=...&bookId=...
+ * GET /api/reflections?bookId=...
+ * User ID is extracted from the server-side session — users can only see their own reflections.
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    const bookId = searchParams.get("bookId");
-
-    if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 });
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const bookId = searchParams.get("bookId");
+
     const db = getDb();
-    const conditions: SQL[] = [eq(reflections.userId, userId)];
+    const conditions: SQL[] = [eq(reflections.userId, session.user.id)];
     if (bookId) conditions.push(eq(reflections.bookId, bookId));
 
     const result = await db
@@ -47,15 +51,22 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/reflections — Create a reflection
- * Body: { userId, content, bookId?, mood?, isPrivate? }
+ * Body: { content, bookId?, mood?, isPrivate? }
+ * User ID is extracted from the server-side session.
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, content, bookId, mood, isPrivate = true } = body;
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!userId || !content) {
-      return NextResponse.json({ error: "userId and content are required" }, { status: 400 });
+    const body = await request.json();
+    const { content, bookId, mood, isPrivate = true } = body;
+
+    if (!content) {
+      return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
     if (content.length < 10) {
@@ -65,13 +76,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sanitize user-generated content
+    const sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+
     const db = getDb();
 
     const result = await db
       .insert(reflections)
       .values({
-        userId,
-        content,
+        userId: session.user.id, // Use session user ID, never client-provided
+        content: sanitizedContent,
         bookId: bookId || null,
         mood: mood || null,
         isPrivate,

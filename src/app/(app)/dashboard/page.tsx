@@ -48,6 +48,7 @@ interface DashboardRecommendation {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [reading, setReading] = useState<DashboardBook[]>([]);
+  const [completedCount, setCompletedCount] = useState(0);
   const [discussions, setDiscussions] = useState<DashboardDiscussion[]>([]);
   const [recommendation, setRecommendation] = useState<DashboardRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,10 +58,17 @@ export default function DashboardPage() {
       if (!session?.user?.id) return;
       
       try {
-        const shelfRes = await fetch(`/api/books/shelf?userId=${session.user.id}&status=reading`);
+        const shelfRes = await fetch(`/api/books/shelf?status=reading`);
         if (shelfRes.ok) {
           const { shelf } = await shelfRes.json();
           setReading(shelf);
+        }
+
+        // Fetch completed count for stats
+        const completedRes = await fetch(`/api/books/shelf?status=completed`);
+        if (completedRes.ok) {
+          const { shelf: completedShelf } = await completedRes.json();
+          setCompletedCount(completedShelf.length);
         }
 
         const discRes = await fetch(`/api/discussions?limit=2`);
@@ -110,23 +118,23 @@ export default function DashboardPage() {
         </h1>
         <p style={{ color: "var(--text-secondary)", marginBottom: "var(--space-6)" }}>Here&apos;s what&apos;s happening in your intellectual journey.</p>
         
-        {/* Stats Row */}
+        {/* Stats Row — real data from shelf and reading list */}
         <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-6)" }}>
           <div className="card" style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
             <div style={{ padding: "var(--space-3)", background: "rgba(245, 158, 11, 0.1)", color: "var(--amber-dark)", borderRadius: "var(--radius-full)" }}>
-              <Fire size={24} weight="fill" />
+              <BookOpenText size={24} weight="fill" />
             </div>
             <div>
-              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>12</div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Day Streak</div>
+              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>{reading.length}</div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Reading Now</div>
             </div>
           </div>
           <div className="card" style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
             <div style={{ padding: "var(--space-3)", background: "rgba(45, 95, 62, 0.1)", color: "var(--forest-sage)", borderRadius: "var(--radius-full)" }}>
-              <BookOpenText size={24} weight="fill" />
+              <BookmarkSimple size={24} weight="fill" />
             </div>
             <div>
-              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>14</div>
+              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>{completedCount}</div>
               <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Books Read</div>
             </div>
           </div>
@@ -135,8 +143,8 @@ export default function DashboardPage() {
               <Medal size={24} weight="fill" />
             </div>
             <div>
-              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>2.4k</div>
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Reputation</div>
+              <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>{discussions.length > 0 ? discussions.length : 0}</div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Discussions</div>
             </div>
           </div>
         </section>

@@ -42,8 +42,8 @@ export default function LibraryPage() {
     setIsLoading(true);
     try {
       const url = activeTab === "all" 
-        ? `/api/books/shelf?userId=${session.user.id}`
-        : `/api/books/shelf?userId=${session.user.id}&status=${activeTab}`;
+        ? `/api/books/shelf`
+        : `/api/books/shelf?status=${activeTab}`;
         
       const res = await fetch(url);
       if (res.ok) {

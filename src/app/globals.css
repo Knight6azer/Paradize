@@ -4,7 +4,7 @@
    ═══════════════════════════════════════════════════════ */
 
 /* ─── Google Fonts ──────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Literata:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ─── CSS Reset ─────────────────────────────────────── */
 *,
@@ -61,57 +61,59 @@ ul, ol {
 
 /* ─── Design Tokens ─────────────────────────────────── */
 :root {
-  /* Brand Colors */
-  --forest-sage: #2D5F3E;
-  --forest-sage-light: #3D7A52;
-  --forest-sage-dark: #1E4029;
-  --warm-amber: #F4A261;
-  --warm-amber-light: #F7BC8A;
-  --warm-amber-dark: #E08C3E;
-  --deep-teal: #264653;
-  --deep-teal-light: #2A5A6A;
+  /* Brand Colors — Forest Green & Warm Botanical Palette */
+  --forest-sage: #1B4332;
+  --forest-sage-light: #2D6A4F;
+  --forest-sage-dark: #132E22;
+  --forest-sage-subtle: #EBF2EC;
+  --warm-amber: #D4A373;
+  --warm-amber-light: #F4E7DA;
+  --warm-amber-dark: #BC6C25;
+  --deep-teal: #1F3F34;
+  --deep-teal-light: #2D5849;
 
   /* Semantic Colors */
-  --success: #2A9D8F;
-  --success-light: #3DB8A9;
-  --warning: #E9C46A;
-  --warning-dark: #D4A843;
-  --error: #E76F51;
-  --error-light: #F08B73;
-  --info: #457B9D;
+  --success: #2D6A4F;
+  --success-light: #52B788;
+  --warning: #D4A373;
+  --warning-dark: #BC6C25;
+  --error: #C85A3F;
+  --error-light: #E07A5F;
+  --info: #3D6B7A;
 
-  /* Light Mode (Default) */
-  --bg-primary: #FAFAF5;
-  --bg-secondary: #F2F0E8;
-  --bg-tertiary: #E8E5DA;
+  /* Warm Paper & Ivory Light Mode (Mockup Theme) */
+  --bg-primary: #F9F6F0;
+  --bg-secondary: #F3EFE7;
+  --bg-tertiary: #E8E2D5;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #FEFEFE;
+  --bg-card-hover: #FEFCF8;
   --bg-elevated: #FFFFFF;
-  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass: rgba(249, 246, 240, 0.9);
 
-  --text-primary: #1A1A2E;
-  --text-secondary: #5A5A72;
-  --text-tertiary: #8A8A9A;
-  --text-inverse: #FAFAF5;
+  --text-primary: #1C231F;
+  --text-secondary: #576059;
+  --text-tertiary: #7D8880;
+  --text-inverse: #F9F6F0;
   --text-accent: var(--forest-sage);
-  --text-link: var(--deep-teal);
+  --text-link: var(--forest-sage);
 
-  --border-light: #E5E3DA;
-  --border-medium: #D0CEC4;
+  --border-light: #E6E0D4;
+  --border-medium: #D5CDC0;
   --border-focus: var(--forest-sage);
 
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(26, 26, 46, 0.04);
-  --shadow-sm: 0 2px 4px rgba(26, 26, 46, 0.06), 0 1px 2px rgba(26, 26, 46, 0.04);
-  --shadow-md: 0 4px 12px rgba(26, 26, 46, 0.08), 0 2px 4px rgba(26, 26, 46, 0.04);
-  --shadow-lg: 0 8px 24px rgba(26, 26, 46, 0.10), 0 4px 8px rgba(26, 26, 46, 0.06);
-  --shadow-xl: 0 16px 48px rgba(26, 26, 46, 0.12), 0 8px 16px rgba(26, 26, 46, 0.08);
-  --shadow-glow: 0 0 24px rgba(45, 95, 62, 0.15);
-  --shadow-amber: 0 0 24px rgba(244, 162, 97, 0.2);
+  /* Shadows (Natural, Soft, Editorial) */
+  --shadow-xs: 0 1px 2px rgba(28, 35, 31, 0.04);
+  --shadow-sm: 0 2px 5px rgba(28, 35, 31, 0.05), 0 1px 2px rgba(28, 35, 31, 0.03);
+  --shadow-md: 0 4px 14px rgba(28, 35, 31, 0.07), 0 2px 4px rgba(28, 35, 31, 0.03);
+  --shadow-lg: 0 10px 28px rgba(28, 35, 31, 0.09), 0 4px 10px rgba(28, 35, 31, 0.04);
+  --shadow-xl: 0 18px 48px rgba(28, 35, 31, 0.11), 0 8px 18px rgba(28, 35, 31, 0.06);
+  --shadow-glow: 0 0 24px rgba(27, 67, 50, 0.15);
+  --shadow-amber: 0 0 24px rgba(212, 163, 115, 0.2);
 
-  /* Typography */
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  /* Typography — Refined Book Editorial Serif for Headings */
+  --font-heading: 'Literata', 'Newsreader', Georgia, serif;
+  --font-serif: 'Literata', 'Newsreader', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-reading: 'Literata', Georgia, serif;
 
   --text-xs: 0.75rem;
@@ -196,31 +198,31 @@ ul, ol {
   --transition-normal: var(--transition-base);
 }
 
-/* ─── Dark Mode ─────────────────────────────────────── */
+/* ─── Dark Mode (Botanical Forest Slate) ─────────────────── */
 [data-theme="dark"] {
-  --bg-primary: #0F0F1A;
-  --bg-secondary: #1A1A2E;
-  --bg-tertiary: #252540;
-  --bg-card: #1E1E35;
-  --bg-card-hover: #252545;
-  --bg-elevated: #2A2A48;
-  --bg-glass: rgba(30, 30, 53, 0.8);
+  --bg-primary: #121814;
+  --bg-secondary: #17211B;
+  --bg-tertiary: #1E2B23;
+  --bg-card: #18231C;
+  --bg-card-hover: #202E25;
+  --bg-elevated: #24352B;
+  --bg-glass: rgba(24, 35, 28, 0.9);
 
-  --text-primary: #F0F0E8;
-  --text-secondary: #A0A0B2;
-  --text-tertiary: #6A6A80;
-  --text-inverse: #1A1A2E;
+  --text-primary: #F2EFE9;
+  --text-secondary: #A0ADA4;
+  --text-tertiary: #6E7E73;
+  --text-inverse: #121814;
 
-  --border-light: #2E2E4A;
-  --border-medium: #3E3E5A;
+  --border-light: #26382E;
+  --border-medium: #344B3E;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.25);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 30px rgba(45, 95, 62, 0.25);
-  --shadow-amber: 0 0 30px rgba(244, 162, 97, 0.15);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 30px rgba(45, 106, 79, 0.25);
+  --shadow-amber: 0 0 30px rgba(212, 163, 115, 0.15);
 }
 
 /* ─── Utility Classes ───────────────────────────────── */
@@ -264,7 +266,7 @@ h6 { font-size: var(--text-md); font-weight: var(--weight-medium); }
   font-size: var(--text-sm);
   line-height: 1;
   padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   transition: all var(--transition-base);
   white-space: nowrap;
   user-select: none;
@@ -272,54 +274,46 @@ h6 { font-size: var(--text-md); font-weight: var(--weight-medium); }
   overflow: hidden;
 }
 
-.btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.btn:hover::after {
-  opacity: 1;
-}
-
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, var(--forest-sage), var(--forest-sage-dark));
-  color: white;
-  box-shadow: var(--shadow-sm), 0 2px 8px rgba(45, 95, 62, 0.25);
+  background: var(--forest-sage);
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(27, 67, 50, 0.2);
 }
 
 .btn--primary:hover {
-  box-shadow: var(--shadow-md), 0 4px 16px rgba(45, 95, 62, 0.35);
+  background: var(--forest-sage-light);
+  box-shadow: 0 4px 14px rgba(27, 67, 50, 0.28);
   transform: translateY(-1px);
 }
 
 .btn--secondary {
   background: var(--bg-card);
   color: var(--text-primary);
-  border: 1.5px solid var(--border-medium);
+  border: 1px solid var(--border-medium);
 }
 
 .btn--secondary:hover {
   border-color: var(--forest-sage);
   color: var(--forest-sage);
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-xs);
+  transform: translateY(-1px);
 }
 
 .btn--accent {
-  background: linear-gradient(135deg, var(--warm-amber), var(--warm-amber-dark));
-  color: white;
-  box-shadow: var(--shadow-sm), 0 2px 8px rgba(244, 162, 97, 0.25);
+  background: var(--warm-amber);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(212, 163, 115, 0.25);
 }
 
 .btn--accent:hover {
-  box-shadow: var(--shadow-md), 0 4px 16px rgba(244, 162, 97, 0.35);
+  background: var(--warm-amber-dark);
+  box-shadow: 0 4px 14px rgba(212, 163, 115, 0.35);
   transform: translateY(-1px);
 }
 

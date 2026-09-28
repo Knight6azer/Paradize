@@ -69,7 +69,6 @@ export default function OnboardingPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: session.user.id,
           favoriteGenres: genres,
           booksPerMonth: speed,
           readingStyle: style,

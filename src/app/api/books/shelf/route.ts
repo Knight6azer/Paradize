@@ -2,23 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { userBooks, books } from "@/lib/db/schema";
 import { eq, and, type SQL } from "drizzle-orm";
+import { getServerSession } from "@/lib/auth/session";
 
 /**
- * GET /api/books/shelf?userId=...&status=reading|completed|want_to_read
- * Fetch user's bookshelf with book details
+ * GET /api/books/shelf?status=reading|completed|want_to_read
+ * User ID is extracted from the server-side session.
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    const status = searchParams.get("status");
-
-    if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 });
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+
     const db = getDb();
-    const conditions: SQL[] = [eq(userBooks.userId, userId)];
+    const conditions: SQL[] = [eq(userBooks.userId, session.user.id)];
     if (status) {
       conditions.push(eq(userBooks.status, status as typeof userBooks.status.enumValues[number]));
     }
@@ -54,15 +56,22 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/books/shelf — Add a book to user's shelf
- * Body: { userId, bookData (from Google Books), status }
+ * Body: { bookData (from Google Books), status }
+ * User ID is extracted from the server-side session.
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, bookData, status = "want_to_read" } = body;
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!userId || !bookData) {
-      return NextResponse.json({ error: "userId and bookData are required" }, { status: 400 });
+    const body = await request.json();
+    const { bookData, status = "want_to_read" } = body;
+
+    if (!bookData) {
+      return NextResponse.json({ error: "bookData is required" }, { status: 400 });
     }
 
     const db = getDb();
@@ -98,11 +107,11 @@ export async function POST(request: NextRequest) {
       bookRecord = inserted[0];
     }
 
-    // Add to user's shelf
+    // Add to user's shelf using session user ID
     const userBook = await db
       .insert(userBooks)
       .values({
-        userId,
+        userId: session.user.id,
         bookId: bookRecord.id,
         status: status as typeof userBooks.status.enumValues[number],
         startedAt: status === "reading" ? new Date() : null,
@@ -125,9 +134,16 @@ export async function POST(request: NextRequest) {
 /**
  * PATCH /api/books/shelf — Update book status or progress
  * Body: { userBookId, status?, progressPercent? }
+ * Verifies the userBook belongs to the authenticated user.
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { userBookId, status, progressPercent } = body;
 
@@ -136,6 +152,18 @@ export async function PATCH(request: NextRequest) {
     }
 
     const db = getDb();
+
+    // Verify ownership: only allow updating own books
+    const existing = await db
+      .select({ userId: userBooks.userId })
+      .from(userBooks)
+      .where(eq(userBooks.id, userBookId))
+      .limit(1);
+
+    if (!existing[0] || existing[0].userId !== session.user.id) {
+      return NextResponse.json({ error: "Not found or not authorized" }, { status: 403 });
+    }
+
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
 
     if (status) updateData.status = status;
@@ -163,9 +191,16 @@ export async function PATCH(request: NextRequest) {
 
 /**
  * DELETE /api/books/shelf?userBookId=...
+ * Verifies the userBook belongs to the authenticated user.
  */
 export async function DELETE(request: NextRequest) {
   try {
+    // Verify authentication server-side
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const userBookId = searchParams.get("userBookId");
 
@@ -174,6 +209,18 @@ export async function DELETE(request: NextRequest) {
     }
 
     const db = getDb();
+
+    // Verify ownership before deletion
+    const existing = await db
+      .select({ userId: userBooks.userId })
+      .from(userBooks)
+      .where(eq(userBooks.id, userBookId))
+      .limit(1);
+
+    if (!existing[0] || existing[0].userId !== session.user.id) {
+      return NextResponse.json({ error: "Not found or not authorized" }, { status: 403 });
+    }
+
     await db.delete(userBooks).where(eq(userBooks.id, userBookId));
 
     return NextResponse.json({ success: true });
