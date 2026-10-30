@@ -17,6 +17,13 @@ We aim to replace the isolation of modern life with small, tight-knit reading ci
 
 ## ✨ Features
 
+- **🌐 One-Go Multilingual Interface**: Seamless instant localization across 6 global languages:
+  - English (🇺🇸)
+  - Hindi (हिन्दी 🇮🇳)
+  - Spanish (Español 🇪🇸)
+  - French (Français 🇫🇷)
+  - German (Deutsch 🇩🇪)
+  - Bengali (বাংলা 🇧🇩)
 - **Smart Book Library**: AI-powered recommendations tailored to your personal growth goals, not just your favorite genres.
 - **Meaningful Discussions**: Structured, troll-free conversation spaces that use AI moderation to prioritize depth and respect.
 - **Reading Groups**: Intimate groups of 5-20 readers with shared schedules and accountability.
