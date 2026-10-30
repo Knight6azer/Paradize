@@ -18,12 +18,15 @@ import {
   Bell
 } from "@phosphor-icons/react";
 import { useSession, signOut } from "@/lib/auth/client";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -31,21 +34,21 @@ export default function AppLayout({
 
   // Fallback user if session is loading
   const user = {
-    name: session?.user?.name || "Reader",
+    name: session?.user?.name || t("app.reader", "Reader"),
     handle: `@${session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "reader"}`,
     avatar: session?.user?.name?.charAt(0) || "R",
   };
 
   const getPageTitle = () => {
-    if (pathname.includes("/dashboard")) return "Dashboard";
-    if (pathname.includes("/library")) return "My Library";
-    if (pathname.includes("/discover")) return "Discover Books";
-    if (pathname.includes("/discussions")) return "Discussions";
-    if (pathname.includes("/groups")) return "Reading Groups";
-    if (pathname.includes("/journal")) return "Reflection Journal";
-    if (pathname.includes("/profile")) return "Profile";
-    if (pathname.includes("/onboarding")) return "Welcome to Paradize";
-    return "Paradize";
+    if (pathname.includes("/dashboard")) return t("app.dashboard", "Dashboard");
+    if (pathname.includes("/library")) return t("app.library", "My Library");
+    if (pathname.includes("/discover")) return t("app.discover", "Discover Books");
+    if (pathname.includes("/discussions")) return t("app.discussions", "Discussions");
+    if (pathname.includes("/groups")) return t("app.groups", "Reading Groups");
+    if (pathname.includes("/journal")) return t("app.journal", "Reflection Journal");
+    if (pathname.includes("/profile")) return t("app.profile", "Profile");
+    if (pathname.includes("/onboarding")) return t("app.onboarding", "Welcome to Paradize");
+    return t("nav.brand", "Paradize");
   };
 
   const closeSidebar = () => setIsMobileSidebarOpen(false);
@@ -68,7 +71,7 @@ export default function AppLayout({
         <div className={styles.sidebar__header}>
           <Link href="/" className={styles.sidebar__logo} onClick={closeSidebar}>
             <Books size={24} weight="duotone" color="var(--forest-sage)" />
-            Paradize
+            {t("nav.brand", "Paradize")}
           </Link>
           <button 
             className={styles.mobile__toggle} 
@@ -81,14 +84,14 @@ export default function AppLayout({
 
         <nav className={styles.sidebar__nav}>
           <div className={styles.nav__section}>
-            <div className={styles.nav__label}>Main</div>
+            <div className={styles.nav__label}>{t("app.main", "Main")}</div>
             <Link
               href="/dashboard"
               className={`${styles.nav__item} ${pathname === "/dashboard" ? styles["nav__item--active"] : ""}`}
               onClick={closeSidebar}
             >
               <Layout size={20} weight={pathname === "/dashboard" ? "fill" : "regular"} />
-              Dashboard
+              {t("app.dashboard", "Dashboard")}
             </Link>
             <Link
               href="/library"
@@ -96,7 +99,7 @@ export default function AppLayout({
               onClick={closeSidebar}
             >
               <Books size={20} weight={pathname === "/library" ? "fill" : "regular"} />
-              My Library
+              {t("app.library", "My Library")}
             </Link>
             <Link
               href="/discover"
@@ -104,19 +107,19 @@ export default function AppLayout({
               onClick={closeSidebar}
             >
               <Compass size={20} weight={pathname.includes("/discover") ? "fill" : "regular"} />
-              Discover
+              {t("app.discover", "Discover")}
             </Link>
           </div>
 
           <div className={styles.nav__section}>
-            <div className={styles.nav__label}>Community</div>
+            <div className={styles.nav__label}>{t("app.community", "Community")}</div>
             <Link
               href="/discussions"
               className={`${styles.nav__item} ${pathname.includes("/discussions") ? styles["nav__item--active"] : ""}`}
               onClick={closeSidebar}
             >
               <ChatsCircle size={20} weight={pathname.includes("/discussions") ? "fill" : "regular"} />
-              Discussions
+              {t("app.discussions", "Discussions")}
             </Link>
             <Link
               href="/groups"
@@ -124,19 +127,19 @@ export default function AppLayout({
               onClick={closeSidebar}
             >
               <Users size={20} weight={pathname.includes("/groups") ? "fill" : "regular"} />
-              Reading Groups
+              {t("app.groups", "Reading Groups")}
             </Link>
           </div>
 
           <div className={styles.nav__section}>
-            <div className={styles.nav__label}>Personal</div>
+            <div className={styles.nav__label}>{t("app.personal", "Personal")}</div>
             <Link
               href="/journal"
               className={`${styles.nav__item} ${pathname.includes("/journal") ? styles["nav__item--active"] : ""}`}
               onClick={closeSidebar}
             >
               <Notebook size={20} weight={pathname.includes("/journal") ? "fill" : "regular"} />
-              Reflection Journal
+              {t("app.journal", "Reflection Journal")}
             </Link>
             <Link
               href={`/profile/${session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "me"}`}
@@ -144,7 +147,7 @@ export default function AppLayout({
               onClick={closeSidebar}
             >
               <User size={20} weight={pathname.includes("/profile") ? "fill" : "regular"} />
-              Profile
+              {t("app.profile", "Profile")}
             </Link>
           </div>
         </nav>
@@ -159,7 +162,7 @@ export default function AppLayout({
               {user.handle}
             </div>
           </div>
-          <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }} onClick={handleSignOut} title="Sign Out">
+          <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }} onClick={handleSignOut} title={t("app.signOut", "Sign Out")}>
             <ArrowRight size={16} />
           </button>
         </div>
@@ -171,7 +174,7 @@ export default function AppLayout({
         <header className={styles.header}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
             <button 
-              className={styles.mobile__toggle}
+              className={styles.mobile__toggle} 
               onClick={() => setIsMobileSidebarOpen(true)}
               style={{ display: "block" }} // overridden by media query in CSS
             >
@@ -179,15 +182,16 @@ export default function AppLayout({
             </button>
             <h1 className={styles.header__title}>{getPageTitle()}</h1>
           </div>
-          <div className={styles.header__actions}>
-            <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }}>
+          <div className={styles.header__actions} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <LanguageSwitcher variant="header" />
+            <button className="btn btn--ghost" style={{ padding: "var(--space-2)" }} aria-label={t("app.notifications", "Notifications")}>
               <Bell size={20} />
             </button>
             <button 
               className="btn btn--primary btn--sm"
               onClick={() => router.push("/discussions/new")}
             >
-              New Discussion
+              {t("app.newDiscussion", "New Discussion")}
             </button>
           </div>
         </header>
