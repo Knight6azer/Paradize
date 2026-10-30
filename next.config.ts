@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Turbopack is enabled by default in Next 16
-  turbopack: {},
+  experimental: {
+    cpus: 1,
+  },
   images: {
     remotePatterns: [
       {
