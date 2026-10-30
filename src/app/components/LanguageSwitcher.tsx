@@ -180,3 +180,4 @@ export default function LanguageSwitcher({ className, variant = "nav" }: Languag
     </div>
   );
 }
+
