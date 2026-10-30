@@ -17,3 +17,4 @@ export const LANGUAGES: LanguageOption[] = [
 export const DEFAULT_LANGUAGE = 'en';
 
 export type SupportedLanguage = 'en' | 'hi' | 'es' | 'fr' | 'de' | 'bn';
+
