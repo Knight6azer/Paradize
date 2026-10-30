@@ -22,46 +22,14 @@ import {
   InstagramLogo,
   TwitterLogo,
   LinkedinLogo,
-  YoutubeLogo,
-  Sparkle
+  YoutubeLogo
 } from "@phosphor-icons/react";
 import styles from "./page.module.css";
-
-/* ─── 6 Horizontal Feature Pills ───────────────────── */
-const featurePills = [
-  {
-    icon: <ChatCircleDots size={22} weight="duotone" />,
-    title: "Thoughtful Discussions",
-    desc: "Dive deep into curated discussions that challenge your thinking."
-  },
-  {
-    icon: <UsersThree size={22} weight="duotone" />,
-    title: "Multiple Perspectives",
-    desc: "Explore every idea from different lenses and backgrounds."
-  },
-  {
-    icon: <BookOpenText size={22} weight="duotone" />,
-    title: "Diverse Genres",
-    desc: "From fiction to philosophy, science to history—read what expands you."
-  },
-  {
-    icon: <TrendUp size={22} weight="duotone" />,
-    title: "Personal Growth",
-    desc: "Track your journey, reflect on insights, and become your best self."
-  },
-  {
-    icon: <CalendarCheck size={22} weight="duotone" />,
-    title: "Events & Meetups",
-    desc: "Join live sessions online and offline. Connect. Learn. Belong."
-  },
-  {
-    icon: <Coffee size={22} weight="duotone" />,
-    title: "Offline Cafés",
-    desc: "Real conversations. Great coffee. Lifelong connections."
-  }
-];
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 export default function LandingPage() {
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
@@ -70,11 +38,44 @@ export default function LandingPage() {
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [newsletterMsg, setNewsletterMsg] = useState("");
 
+  const featurePills = [
+    {
+      icon: <ChatCircleDots size={22} weight="duotone" />,
+      title: t("pills.discussions.title", "Thoughtful Discussions"),
+      desc: t("pills.discussions.desc", "Dive deep into curated discussions that challenge your thinking.")
+    },
+    {
+      icon: <UsersThree size={22} weight="duotone" />,
+      title: t("pills.perspectives.title", "Multiple Perspectives"),
+      desc: t("pills.perspectives.desc", "Explore every idea from different lenses and backgrounds.")
+    },
+    {
+      icon: <BookOpenText size={22} weight="duotone" />,
+      title: t("pills.genres.title", "Diverse Genres"),
+      desc: t("pills.genres.desc", "From fiction to philosophy, science to history—read what expands you.")
+    },
+    {
+      icon: <TrendUp size={22} weight="duotone" />,
+      title: t("pills.growth.title", "Personal Growth"),
+      desc: t("pills.growth.desc", "Track your journey, reflect on insights, and become your best self.")
+    },
+    {
+      icon: <CalendarCheck size={22} weight="duotone" />,
+      title: t("pills.events.title", "Events & Meetups"),
+      desc: t("pills.events.desc", "Join live sessions online and offline. Connect. Learn. Belong.")
+    },
+    {
+      icon: <Coffee size={22} weight="duotone" />,
+      title: t("pills.cafes.title", "Offline Cafés"),
+      desc: t("pills.cafes.desc", "Real conversations. Great coffee. Lifelong connections.")
+    }
+  ];
+
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail || !newsletterEmail.includes("@")) {
       setNewsletterStatus("error");
-      setNewsletterMsg("Please enter a valid email address.");
+      setNewsletterMsg(t("newsletter.invalidEmail", "Please enter a valid email address."));
       return;
     }
     setNewsletterStatus("loading");
@@ -87,15 +88,15 @@ export default function LandingPage() {
       const data = await res.json();
       if (res.ok) {
         setNewsletterStatus("success");
-        setNewsletterMsg(data.message || "You're subscribed! Welcome to Paradize reads.");
+        setNewsletterMsg(data.message || t("newsletter.defaultSuccess", "You're subscribed! Welcome to Paradize reads."));
         setNewsletterEmail("");
       } else {
         setNewsletterStatus("error");
-        setNewsletterMsg(data.error || "Subscription failed. Please try again.");
+        setNewsletterMsg(data.error || t("newsletter.connectError", "Subscription failed. Please try again."));
       }
     } catch {
       setNewsletterStatus("error");
-      setNewsletterMsg("Failed to connect. Please try again.");
+      setNewsletterMsg(t("newsletter.connectError", "Failed to connect. Please try again."));
     }
   };
 
@@ -109,37 +110,50 @@ export default function LandingPage() {
               <BookOpenText size={32} weight="duotone" />
             </div>
             <div className={styles.nav__brand_text}>
-              <span className={styles.nav__brand_name}>Paradize</span>
-              <span className={styles.nav__brand_tagline}>Read. Reflect. Grow. Together.</span>
+              <span className={styles.nav__brand_name}>{t("nav.brand", "Paradize")}</span>
+              <span className={styles.nav__brand_tagline}>{t("nav.tagline", "Read. Reflect. Grow. Together.")}</span>
             </div>
           </Link>
 
           <nav className={styles.nav__links} aria-label="Main Navigation">
-            <Link href="/" className={`${styles.nav__link} ${styles["nav__link--active"]}`}>Home</Link>
-            <Link href="/groups" className={styles.nav__link}>Community</Link>
-            <Link href="/discussions" className={styles.nav__link}>Discussions</Link>
-            <Link href="/groups" className={styles.nav__link}>Events</Link>
-            <Link href="/discover" className={styles.nav__link}>Resources</Link>
+            <Link href="/" className={`${styles.nav__link} ${styles["nav__link--active"]}`}>
+              {t("nav.home", "Home")}
+            </Link>
+            <Link href="/groups" className={styles.nav__link}>
+              {t("nav.community", "Community")}
+            </Link>
+            <Link href="/discussions" className={styles.nav__link}>
+              {t("nav.discussions", "Discussions")}
+            </Link>
+            <Link href="/groups" className={styles.nav__link}>
+              {t("nav.events", "Events")}
+            </Link>
+            <Link href="/discover" className={styles.nav__link}>
+              {t("nav.resources", "Resources")}
+            </Link>
             <button
               onClick={() => setHowItWorksOpen(true)}
               className={styles.nav__link}
               style={{ background: "none", border: "none", cursor: "pointer" }}
             >
-              About Us
+              {t("nav.aboutUs", "About Us")}
             </button>
           </nav>
 
           <div className={styles.nav__actions}>
+            {/* Multilingual Switcher Dropdown */}
+            <LanguageSwitcher variant="nav" />
+
             <Link href="/login" className={styles.nav__btn_login}>
-              Log In
+              {t("nav.login", "Log In")}
             </Link>
             <Link href="/register" className={styles.nav__btn_join}>
-              Join Now
+              {t("nav.joinNow", "Join Now")}
             </Link>
             <button
               className={styles.nav__mobile_toggle}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={t("nav.toggleMenu", "Toggle menu")}
             >
               {mobileMenuOpen ? <X size={24} /> : <List size={24} />}
             </button>
@@ -148,29 +162,55 @@ export default function LandingPage() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div style={{
-            padding: "1rem 2rem 1.5rem",
-            background: "var(--bg-card)",
-            borderBottom: "1px solid var(--border-light)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem"
-          }}>
-            <Link href="/" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Home</Link>
-            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Community</Link>
-            <Link href="/discussions" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Discussions</Link>
-            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Events</Link>
-            <Link href="/discover" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>Resources</Link>
+          <div
+            style={{
+              padding: "1rem 2rem 1.5rem",
+              background: "var(--bg-card)",
+              borderBottom: "1px solid var(--border-light)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "0.5rem", borderBottom: "1px solid var(--border-light)" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+                {t("nav.language", "Language")}:
+              </span>
+              <LanguageSwitcher variant="compact" />
+            </div>
+
+            <Link href="/" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>
+              {t("nav.home", "Home")}
+            </Link>
+            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>
+              {t("nav.community", "Community")}
+            </Link>
+            <Link href="/discussions" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>
+              {t("nav.discussions", "Discussions")}
+            </Link>
+            <Link href="/groups" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>
+              {t("nav.events", "Events")}
+            </Link>
+            <Link href="/discover" className={styles.nav__link} onClick={() => setMobileMenuOpen(false)}>
+              {t("nav.resources", "Resources")}
+            </Link>
             <button
-              onClick={() => { setMobileMenuOpen(false); setHowItWorksOpen(true); }}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setHowItWorksOpen(true);
+              }}
               className={styles.nav__link}
               style={{ textAlign: "left", background: "none", border: "none", cursor: "pointer" }}
             >
-              About Us
+              {t("nav.aboutUs", "About Us")}
             </button>
             <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-              <Link href="/login" className={styles.nav__btn_login} style={{ flex: 1, textAlign: "center" }}>Log In</Link>
-              <Link href="/register" className={styles.nav__btn_join} style={{ flex: 1, textAlign: "center" }}>Join Now</Link>
+              <Link href="/login" className={styles.nav__btn_login} style={{ flex: 1, textAlign: "center" }}>
+                {t("nav.login", "Log In")}
+              </Link>
+              <Link href="/register" className={styles.nav__btn_join} style={{ flex: 1, textAlign: "center" }}>
+                {t("nav.joinNow", "Join Now")}
+              </Link>
             </div>
           </div>
         )}
@@ -183,22 +223,26 @@ export default function LandingPage() {
           <div className={styles.hero__content}>
             <div className={styles.hero__badge}>
               <Users size={16} weight="bold" />
-              <span>A COMMUNITY FOR CURIOUS MINDS</span>
+              <span>{t("hero.badge", "A COMMUNITY FOR CURIOUS MINDS")}</span>
             </div>
 
             <h1 className={styles.hero__title}>
-              Read to Understand.<br />
-              Discuss to <span className={styles.hero__title_accent}>Grow.</span>
+              {t("hero.title1", "Read to Understand.")}
+              <br />
+              {t("hero.title2", "Discuss to ")}
+              <span className={styles.hero__title_accent}>{t("hero.titleAccent", "Grow.")}</span>
             </h1>
 
             <p className={styles.hero__subtitle}>
-              A virtual ground for readers to explore ideas, share perspectives, and grow together.
-              Different books. Multiple viewpoints. One journey of constant growth.
+              {t(
+                "hero.subtitle",
+                "A virtual ground for readers to explore ideas, share perspectives, and grow together. Different books. Multiple viewpoints. One journey of constant growth."
+              )}
             </p>
 
             <div className={styles.hero__actions}>
               <Link href="/register" className={styles.btn__hero_primary}>
-                Join the Community
+                {t("hero.joinCommunity", "Join the Community")}
               </Link>
               <button
                 type="button"
@@ -206,7 +250,7 @@ export default function LandingPage() {
                 onClick={() => setHowItWorksOpen(true)}
               >
                 <Play size={16} weight="fill" />
-                How It Works
+                {t("hero.howItWorks", "How It Works")}
               </button>
             </div>
 
@@ -216,8 +260,12 @@ export default function LandingPage() {
                   <Users size={22} weight="duotone" />
                 </div>
                 <div>
-                  <div className={styles.hero__stat_number}>10K+</div>
-                  <div className={styles.hero__stat_label}>Members</div>
+                  <div className={styles.hero__stat_number}>
+                    {t("hero.stats.members", "10K+")}
+                  </div>
+                  <div className={styles.hero__stat_label}>
+                    {t("hero.stats.membersLabel", "Members")}
+                  </div>
                 </div>
               </div>
 
@@ -226,8 +274,12 @@ export default function LandingPage() {
                   <ChatCircleDots size={22} weight="duotone" />
                 </div>
                 <div>
-                  <div className={styles.hero__stat_number}>250+</div>
-                  <div className={styles.hero__stat_label}>Active Discussions</div>
+                  <div className={styles.hero__stat_number}>
+                    {t("hero.stats.discussions", "250+")}
+                  </div>
+                  <div className={styles.hero__stat_label}>
+                    {t("hero.stats.discussionsLabel", "Active Discussions")}
+                  </div>
                 </div>
               </div>
 
@@ -236,8 +288,12 @@ export default function LandingPage() {
                   <CalendarBlank size={22} weight="duotone" />
                 </div>
                 <div>
-                  <div className={styles.hero__stat_number}>50+</div>
-                  <div className={styles.hero__stat_label}>Monthly Events</div>
+                  <div className={styles.hero__stat_number}>
+                    {t("hero.stats.events", "50+")}
+                  </div>
+                  <div className={styles.hero__stat_label}>
+                    {t("hero.stats.eventsLabel", "Monthly Events")}
+                  </div>
                 </div>
               </div>
 
@@ -246,8 +302,12 @@ export default function LandingPage() {
                   <MapPin size={22} weight="duotone" />
                 </div>
                 <div>
-                  <div className={styles.hero__stat_number}>25+</div>
-                  <div className={styles.hero__stat_label}>Cities (Offline)</div>
+                  <div className={styles.hero__stat_number}>
+                    {t("hero.stats.cities", "25+")}
+                  </div>
+                  <div className={styles.hero__stat_label}>
+                    {t("hero.stats.citiesLabel", "Cities (Offline)")}
+                  </div>
                 </div>
               </div>
             </div>
@@ -266,11 +326,10 @@ export default function LandingPage() {
             <div className={styles.hero__quote_card}>
               <div className={styles.hero__quote_icon}>&ldquo;</div>
               <div className={styles.hero__quote_text}>
-                We don&apos;t read to agree.<br />
-                We read to understand.
+                {t("hero.quoteText", "We don't read to agree. We read to understand.")}
               </div>
               <div className={styles.hero__quote_author}>
-                — Paradize Community
+                {t("hero.quoteAuthor", "— Paradize Community")}
               </div>
             </div>
           </div>
@@ -282,9 +341,7 @@ export default function LandingPage() {
         <div className={styles.features_grid}>
           {featurePills.map((feat) => (
             <div key={feat.title} className={styles.feature_pill}>
-              <div className={styles.feature_pill__icon_wrap}>
-                {feat.icon}
-              </div>
+              <div className={styles.feature_pill__icon_wrap}>{feat.icon}</div>
               <h2 className={styles.feature_pill__title}>{feat.title}</h2>
               <p className={styles.feature_pill__desc}>{feat.desc}</p>
             </div>
@@ -298,9 +355,11 @@ export default function LandingPage() {
           {/* Card 1: Currently Reading Together */}
           <div className={styles.card_widget}>
             <div className={styles.card_widget__header}>
-              <span className={styles.card_widget__title}>Currently Reading Together</span>
+              <span className={styles.card_widget__title}>
+                {t("showcase.currentlyReading", "Currently Reading Together")}
+              </span>
               <Link href="/groups" className={styles.card_widget__link}>
-                View all <ArrowRight size={13} weight="bold" />
+                {t("showcase.viewAll", "View all")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
 
@@ -313,11 +372,11 @@ export default function LandingPage() {
                 className={styles.book_thumb}
               />
               <div className={styles.book_info}>
-                <h3 className={styles.book_title}>Sapiens</h3>
-                <div className={styles.book_subtitle}>A Brief History of Humankind</div>
-                <div className={styles.book_author}>Yuval Noah Harari</div>
+                <h3 className={styles.book_title}>{t("showcase.sapiensTitle", "Sapiens")}</h3>
+                <div className={styles.book_subtitle}>{t("showcase.sapiensSubtitle", "A Brief History of Humankind")}</div>
+                <div className={styles.book_author}>{t("showcase.sapiensAuthor", "Yuval Noah Harari")}</div>
                 <div className={styles.progress_row}>
-                  <span>Chapter 6 of 20</span>
+                  <span>{t("showcase.chapterProgress", "Chapter 6 of 20")}</span>
                   <span className={styles.progress_pct}>30%</span>
                 </div>
                 <div className={styles.progress_bar}>
@@ -330,9 +389,11 @@ export default function LandingPage() {
           {/* Card 2: Upcoming Event */}
           <div className={styles.card_widget}>
             <div className={styles.card_widget__header}>
-              <span className={styles.card_widget__title}>Upcoming Event</span>
+              <span className={styles.card_widget__title}>
+                {t("showcase.upcomingEvent", "Upcoming Event")}
+              </span>
               <Link href="/groups" className={styles.card_widget__link}>
-                View all <ArrowRight size={13} weight="bold" />
+                {t("showcase.viewAll", "View all")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
 
@@ -345,10 +406,14 @@ export default function LandingPage() {
                   height={120}
                   className={styles.event_thumb}
                 />
-                <span className={styles.event_badge}>LIVE DISCUSSION</span>
+                <span className={styles.event_badge}>{t("showcase.liveDiscussion", "LIVE DISCUSSION")}</span>
               </div>
-              <h3 className={styles.event_title}>The Psychology of Decision Making</h3>
-              <div className={styles.event_date}>Sat, 1 June 2024 &bull; 7:00 PM IST</div>
+              <h3 className={styles.event_title}>
+                {t("showcase.eventTitle", "The Psychology of Decision Making")}
+              </h3>
+              <div className={styles.event_date}>
+                {t("showcase.eventDate", "Sat, 1 June 2024 • 7:00 PM IST")}
+              </div>
               <div className={styles.event_footer}>
                 <div className={styles.attendees_row}>
                   <div className={styles.avatar_stack}>
@@ -356,14 +421,18 @@ export default function LandingPage() {
                     <div className={styles.stack_avatar}>A</div>
                     <div className={styles.stack_avatar}>R</div>
                   </div>
-                  <span className={styles.attendees_count}>+120 going</span>
+                  <span className={styles.attendees_count}>
+                    {t("showcase.attendeesGoing", "+120 going")}
+                  </span>
                 </div>
                 <button
                   type="button"
                   className={styles.btn__join_event}
                   onClick={() => setEventJoined(true)}
                 >
-                  {eventJoined ? "Joined!" : "Join Event"}
+                  {eventJoined
+                    ? t("showcase.joined", "Joined!")
+                    : t("showcase.joinEvent", "Join Event")}
                 </button>
               </div>
             </div>
@@ -372,16 +441,21 @@ export default function LandingPage() {
           {/* Card 3: What Members Are Saying */}
           <div className={styles.card_widget}>
             <div className={styles.card_widget__header}>
-              <span className={styles.card_widget__title}>What Members Are Saying</span>
+              <span className={styles.card_widget__title}>
+                {t("showcase.testimonialsTitle", "What Members Are Saying")}
+              </span>
               <Link href="/discussions" className={styles.card_widget__link}>
-                View all <ArrowRight size={13} weight="bold" />
+                {t("showcase.viewAll", "View all")} <ArrowRight size={13} weight="bold" />
               </Link>
             </div>
 
             <div className={styles.testimonial_wrap}>
               <div className={styles.quote_mark}>&ldquo;</div>
               <blockquote className={styles.testimonial_quote}>
-                Paradize has completely changed the way I read and think. The discussions are insightful, respectful, and truly inspiring.
+                {t(
+                  "showcase.testimonialQuote",
+                  "Paradize has completely changed the way I read and think. The discussions are insightful, respectful, and truly inspiring."
+                )}
               </blockquote>
               <div className={styles.member_row}>
                 <Image
@@ -392,8 +466,12 @@ export default function LandingPage() {
                   className={styles.member_avatar}
                 />
                 <div>
-                  <div className={styles.member_name}>Ananya P.</div>
-                  <div className={styles.member_joined}>Member since 2023</div>
+                  <div className={styles.member_name}>
+                    {t("showcase.testimonialAuthor", "Ananya P.")}
+                  </div>
+                  <div className={styles.member_joined}>
+                    {t("showcase.testimonialSince", "Member since 2023")}
+                  </div>
                 </div>
               </div>
             </div>
@@ -402,7 +480,9 @@ export default function LandingPage() {
           {/* Card 4: Your Journey */}
           <div className={styles.card_widget}>
             <div className={styles.card_widget__header}>
-              <span className={styles.card_widget__title}>Your Journey</span>
+              <span className={styles.card_widget__title}>
+                {t("showcase.yourJourneyTitle", "Your Journey")}
+              </span>
             </div>
 
             <div className={styles.journey_wrap}>
@@ -432,26 +512,34 @@ export default function LandingPage() {
 
                 <div className={styles.journey_metrics}>
                   <div className={styles.metric_item}>
-                    <span className={styles.metric_label}>Books Read</span>
+                    <span className={styles.metric_label}>
+                      {t("showcase.booksRead", "Books Read")}
+                    </span>
                     <span className={styles.metric_val}>12</span>
                   </div>
                   <div className={styles.metric_item}>
-                    <span className={styles.metric_label}>Discussions Joined</span>
+                    <span className={styles.metric_label}>
+                      {t("showcase.discussionsJoined", "Discussions Joined")}
+                    </span>
                     <span className={styles.metric_val}>45</span>
                   </div>
                   <div className={styles.metric_item}>
-                    <span className={styles.metric_label}>Insights Shared</span>
+                    <span className={styles.metric_label}>
+                      {t("showcase.insightsShared", "Insights Shared")}
+                    </span>
                     <span className={styles.metric_val}>23</span>
                   </div>
                   <div className={styles.metric_item}>
-                    <span className={styles.metric_label}>Growth Streak</span>
-                    <span className={styles.metric_val}>18 weeks</span>
+                    <span className={styles.metric_label}>
+                      {t("showcase.growthStreak", "Growth Streak")}
+                    </span>
+                    <span className={styles.metric_val}>18 {t("showcase.weeks", "weeks")}</span>
                   </div>
                 </div>
               </div>
 
               <Link href="/dashboard" className={styles.btn__journey}>
-                Continue Your Journey
+                {t("showcase.continueJourney", "Continue Your Journey")}
                 <ArrowRight size={14} weight="bold" />
               </Link>
             </div>
@@ -467,8 +555,12 @@ export default function LandingPage() {
               <EnvelopeSimple size={26} weight="duotone" />
             </div>
             <div>
-              <h2 className={styles.newsletter_heading}>Ideas in your inbox. Growth in your life.</h2>
-              <p className={styles.newsletter_subheading}>Weekly reads, discussion highlights, and exclusive invites.</p>
+              <h2 className={styles.newsletter_heading}>
+                {t("newsletter.heading", "Ideas in your inbox. Growth in your life.")}
+              </h2>
+              <p className={styles.newsletter_subheading}>
+                {t("newsletter.subheading", "Weekly reads, discussion highlights, and exclusive invites.")}
+              </p>
             </div>
           </div>
 
@@ -482,7 +574,7 @@ export default function LandingPage() {
               <>
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t("newsletter.placeholder", "Enter your email")}
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   className={styles.newsletter_input}
@@ -494,7 +586,9 @@ export default function LandingPage() {
                   className={styles.newsletter_btn}
                   disabled={newsletterStatus === "loading"}
                 >
-                  {newsletterStatus === "loading" ? "Subscribing..." : "Subscribe"}
+                  {newsletterStatus === "loading"
+                    ? t("newsletter.subscribing", "Subscribing...")
+                    : t("newsletter.subscribe", "Subscribe")}
                 </button>
               </>
             )}
@@ -514,27 +608,35 @@ export default function LandingPage() {
             <div className={styles.footer_brand}>
               <div className={styles.footer_logo_row}>
                 <BookOpenText size={24} weight="duotone" color="var(--forest-sage)" />
-                <span>Paradize</span>
+                <span>{t("nav.brand", "Paradize")}</span>
               </div>
               <div className={styles.footer_copyright}>
-                &copy; {new Date().getFullYear()} Paradize Community. All rights reserved.
+                &copy; {new Date().getFullYear()} {t("footer.copyright", "Paradize Community. All rights reserved.")}
               </div>
             </div>
 
             <div className={styles.footer_nav_group}>
-              <span className={styles.footer_group_title}>Quick Links</span>
+              <span className={styles.footer_group_title}>{t("footer.quickLinks", "Quick Links")}</span>
               <nav className={styles.footer_nav_links} aria-label="Footer Quick Links">
-                <Link href="/groups" className={styles.footer_link}>Community</Link>
-                <Link href="/groups" className={styles.footer_link}>Events</Link>
-                <Link href="/discover" className={styles.footer_link}>Resources</Link>
+                <Link href="/groups" className={styles.footer_link}>
+                  {t("footer.community", "Community")}
+                </Link>
+                <Link href="/groups" className={styles.footer_link}>
+                  {t("footer.events", "Events")}
+                </Link>
+                <Link href="/discover" className={styles.footer_link}>
+                  {t("footer.resources", "Resources")}
+                </Link>
                 <button
                   onClick={() => setFaqOpen(true)}
                   className={styles.footer_link}
                   style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
                 >
-                  FAQ
+                  {t("footer.faq", "FAQ")}
                 </button>
-                <a href="mailto:support@paradize.club" className={styles.footer_link}>Contact Us</a>
+                <a href="mailto:support@paradize.club" className={styles.footer_link}>
+                  {t("footer.contactUs", "Contact Us")}
+                </a>
               </nav>
             </div>
 
@@ -554,7 +656,7 @@ export default function LandingPage() {
                 </a>
               </div>
               <div className={styles.footer_motto}>
-                <span>Built for readers. Driven by conversations.</span>
+                <span>{t("footer.motto", "Built for readers. Driven by conversations.")}</span>
                 <span>🌿</span>
               </div>
             </div>
@@ -573,9 +675,12 @@ export default function LandingPage() {
             >
               <X size={20} />
             </button>
-            <h2 className={styles.modal_title}>How Paradize Works</h2>
+            <h2 className={styles.modal_title}>{t("howItWorks.title", "How Paradize Works")}</h2>
             <p className={styles.modal_body}>
-              Paradize is built around a simple, powerful cycle designed to turn pages into enduring understanding.
+              {t(
+                "howItWorks.subtitle",
+                "Paradize is built around a simple, powerful cycle designed to turn pages into enduring understanding."
+              )}
             </p>
 
             <div className={styles.modal_steps}>
@@ -583,10 +688,13 @@ export default function LandingPage() {
                 <div className={styles.modal_step_num}>1</div>
                 <div>
                   <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
-                    Discover What Matters
+                    {t("howItWorks.step1Title", "Discover What Matters")}
                   </h3>
                   <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
-                    Find books aligned with your intellectual curiosity and growth goals—curated by readers, not algorithms trying to sell.
+                    {t(
+                      "howItWorks.step1Desc",
+                      "Find books aligned with your intellectual curiosity and growth goals—curated by readers, not algorithms trying to sell."
+                    )}
                   </p>
                 </div>
               </div>
@@ -595,10 +703,13 @@ export default function LandingPage() {
                 <div className={styles.modal_step_num}>2</div>
                 <div>
                   <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
-                    Read & Reflect Privately
+                    {t("howItWorks.step2Title", "Read & Reflect Privately")}
                   </h3>
                   <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
-                    Capture chapter notes and insights in your private Reflection Journal with guided prompts designed for long-term retention.
+                    {t(
+                      "howItWorks.step2Desc",
+                      "Capture chapter notes and insights in your private Reflection Journal with guided prompts designed for long-term retention."
+                    )}
                   </p>
                 </div>
               </div>
@@ -607,10 +718,13 @@ export default function LandingPage() {
                 <div className={styles.modal_step_num}>3</div>
                 <div>
                   <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.2rem" }}>
-                    Discuss & Grow Together
+                    {t("howItWorks.step3Title", "Discuss & Grow Together")}
                   </h3>
                   <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
-                    Join cohort reading groups and local cafe meetups in Mumbai. Engage in structured, respectful discussions where depth is celebrated.
+                    {t(
+                      "howItWorks.step3Desc",
+                      "Join cohort reading groups and local cafe meetups in Mumbai. Engage in structured, respectful discussions where depth is celebrated."
+                    )}
                   </p>
                 </div>
               </div>
@@ -623,7 +737,7 @@ export default function LandingPage() {
                 style={{ flex: 1, textAlign: "center" }}
                 onClick={() => setHowItWorksOpen(false)}
               >
-                Join the Community — It&apos;s Free
+                {t("howItWorks.cta", "Join the Community — It's Free")}
               </Link>
             </div>
           </div>
@@ -641,24 +755,39 @@ export default function LandingPage() {
             >
               <X size={20} />
             </button>
-            <h2 className={styles.modal_title}>Frequently Asked Questions</h2>
+            <h2 className={styles.modal_title}>{t("faq.title", "Frequently Asked Questions")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
               <div>
-                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>Is Paradize free to join?</h4>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>
+                  {t("faq.q1", "Is Paradize free to join?")}
+                </h4>
                 <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
-                  Yes, Paradize is 100% free for readers. Our community is open to everyone passionate about books and ideas.
+                  {t(
+                    "faq.a1",
+                    "Yes, Paradize is 100% free for readers. Our community is open to everyone passionate about books and ideas."
+                  )}
                 </p>
               </div>
               <div>
-                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>Where are offline meetups held?</h4>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>
+                  {t("faq.q2", "Where are offline meetups held?")}
+                </h4>
                 <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
-                  We host weekend reading cafes across Mumbai (Bandra, Colaba, Powai) with additional chapters launching in Pune and Bangalore.
+                  {t(
+                    "faq.a2",
+                    "We host weekend reading cafes across Mumbai (Bandra, Colaba, Powai) with additional chapters launching in Pune and Bangalore."
+                  )}
                 </p>
               </div>
               <div>
-                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>How do reading groups work?</h4>
+                <h4 style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>
+                  {t("faq.q3", "How do reading groups work?")}
+                </h4>
                 <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
-                  Groups read 2–3 chapters per week, sharing weekly reflections and meeting virtually or in-person for chapter deep-dives.
+                  {t(
+                    "faq.a3",
+                    "Groups read 2–3 chapters per week, sharing weekly reflections and meeting virtually or in-person for chapter deep-dives."
+                  )}
                 </p>
               </div>
             </div>
@@ -668,25 +797,32 @@ export default function LandingPage() {
 
       {/* ─── Event Joined Confirmation Toast ────────── */}
       {eventJoined && (
-        <div style={{
-          position: "fixed",
-          bottom: "1.5rem",
-          right: "1.5rem",
-          backgroundColor: "var(--forest-sage)",
-          color: "#ffffff",
-          padding: "0.85rem 1.35rem",
-          borderRadius: "var(--radius-full)",
-          boxShadow: "var(--shadow-lg)",
-          zIndex: 1000,
-          display: "flex",
-          alignItems: "center",
-          gap: "0.6rem",
-          fontSize: "0.88rem",
-          fontWeight: 600,
-          animation: "fadeInUp 0.3s ease"
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            bottom: "1.5rem",
+            right: "1.5rem",
+            backgroundColor: "var(--forest-sage)",
+            color: "#ffffff",
+            padding: "0.85rem 1.35rem",
+            borderRadius: "var(--radius-full)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            fontSize: "0.88rem",
+            fontWeight: 600,
+            animation: "fadeInUp 0.3s ease"
+          }}
+        >
           <CheckCircle size={20} weight="fill" />
-          <span>You&apos;re registered for &ldquo;The Psychology of Decision Making&rdquo;!</span>
+          <span>
+            {t(
+              "toast.eventRegistered",
+              "You're registered for \"The Psychology of Decision Making\"!"
+            )}
+          </span>
           <button
             onClick={() => setEventJoined(false)}
             style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", marginLeft: "0.5rem" }}
