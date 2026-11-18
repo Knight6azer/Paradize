@@ -4,6 +4,7 @@ import { readingGroups, groupMembers, books } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 import DOMPurify from "isomorphic-dompurify";
+import { createGroupSchema } from "@/lib/validation/schemas";
 
 /**
  * GET /api/groups?my=true — List groups
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (myGroups) {
       // Require authentication for "my groups"
       const session = await getServerSession();
-      if (!session) {
+      if (!session?.user?.id) {
         return NextResponse.json({ error: "Authentication required" }, { status: 401 });
       }
 
@@ -72,22 +73,26 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/groups — Create a new group
  * Body: { name, description?, maxMembers?, isPublic?, genreFocus? }
- * User ID is extracted from the server-side session.
+ * User ID is strictly extracted from the server-side session.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication server-side
     const session = await getServerSession();
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { name, description, maxMembers = 20, isPublic = true, genreFocus = [] } = body;
+    const parsed = createGroupSchema.safeParse(body);
 
-    if (!name) {
-      return NextResponse.json({ error: "Group name is required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid group data", details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
+
+    const { name, description, maxMembers, isPublic, genreFocus } = parsed.data;
 
     // Sanitize user-generated content
     const sanitizedName = DOMPurify.sanitize(name, { ALLOWED_TAGS: [] });
@@ -102,10 +107,10 @@ export async function POST(request: NextRequest) {
       .values({
         name: sanitizedName,
         description: sanitizedDescription,
-        createdBy: session.user.id, // Use session user ID
-        maxMembers,
-        isPublic,
-        genreFocus,
+        createdBy: session.user.id,
+        maxMembers: Math.min(Math.max(maxMembers, 2), 20), // Enforce 5-20 target cohort limits
+        isPublic: isPublic ?? true,
+        genreFocus: genreFocus || [],
       })
       .returning();
 
