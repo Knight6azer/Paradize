@@ -142,7 +142,7 @@ export default function AppLayout({
               {t("app.journal", "Reflection Journal")}
             </Link>
             <Link
-              href={`/profile/${session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "me"}`}
+              href={`/profile/${(session?.user as { username?: string })?.username || session?.user?.name?.toLowerCase().replace(/\s+/g, '') || "reader"}`}
               className={`${styles.nav__item} ${pathname.includes("/profile") ? styles["nav__item--active"] : ""}`}
               onClick={closeSidebar}
             >
