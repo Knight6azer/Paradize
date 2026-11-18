@@ -1,5 +1,7 @@
+export type TranslationValue = string | { [key: string]: TranslationValue };
+
 export interface TranslationDictionary {
-  [key: string]: any;
+  [key: string]: TranslationValue;
 }
 
 export const TRANSLATIONS: Record<string, TranslationDictionary> = {
