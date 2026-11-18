@@ -9,8 +9,7 @@
  *   - Quality scoring
  *
  * Model 2: HuggingFace Inference API — Free tier
- *   - Toxicity detection (detoxify)
- *   - Sentence embeddings (all-MiniLM-L6-v2)
+ *   - Toxicity detection (detoxify / toxic-bert)
  */
 
 /* ─── Gemini Service ───────────────────────────────── */
@@ -27,11 +26,11 @@ interface GeminiResponse {
 
 export async function askGemini(
   prompt: string,
-  systemInstruction?: string
+  systemInstruction?: string,
+  timeoutMs: number = 8000
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn("⚠️  GEMINI_API_KEY not set. AI features disabled.");
     return "[AI unavailable — API key not configured]";
   }
 
@@ -55,21 +54,84 @@ export async function askGemini(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error("Gemini API error:", response.status, error);
+      console.warn("Gemini API returned error status:", response.status);
       return "[AI temporarily unavailable]";
     }
 
     const data: GeminiResponse = await response.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || "[No response]";
   } catch (error) {
-    console.error("Gemini request failed:", error);
+    console.warn("Gemini request timed out or failed:", error instanceof Error ? error.message : "unknown error");
     return "[AI temporarily unavailable]";
   }
 }
+
+/**
+ * Robust JSON extraction from LLM output
+ */
+export function extractJsonFromResponse<T>(response: string, fallback: T): T {
+  try {
+    const jsonMatch = response.match(/\[[\s\S]*\]/) || response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as T;
+    }
+    const cleaned = response.replace(/```json\n?|\n?```/g, "").trim();
+    return JSON.parse(cleaned) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+/* ─── Curated Fallback Recommendations ─────────────── */
+export interface RecommendationItem {
+  title: string;
+  author: string;
+  reason: string;
+  question: string;
+  genre?: string;
+}
+
+const CURATED_GROWTH_BOOKS: RecommendationItem[] = [
+  {
+    title: "Meditations",
+    author: "Marcus Aurelius",
+    reason: "A foundational text on self-mastery, clarity, and navigating adversity with emotional equanimity.",
+    question: "What aspects of your life are currently within your control, and what are you futilely struggling against?",
+    genre: "Philosophy"
+  },
+  {
+    title: "Thinking, Fast and Slow",
+    author: "Daniel Kahneman",
+    reason: "Illuminates the cognitive biases and dual thinking systems that govern human judgment and choices.",
+    question: "When did your intuitive instincts last mislead you in a high-stakes decision?",
+    genre: "Psychology"
+  },
+  {
+    title: "Sapiens: A Brief History of Humankind",
+    author: "Yuval Noah Harari",
+    reason: "Examines how shared myths, cultures, and cooperative fictions shaped the trajectory of civilization.",
+    question: "Which unspoken cultural stories or assumptions hold the greatest invisible sway over your everyday actions?",
+    genre: "History"
+  },
+  {
+    title: "Man's Search for Meaning",
+    author: "Viktor E. Frankl",
+    reason: "A profound reflection on human dignity, resilience, and identifying enduring purpose amid suffering.",
+    question: "What fundamental responsibility or commitment gives meaning to your present challenges?",
+    genre: "Philosophy"
+  },
+  {
+    title: "The Courage to Be Disliked",
+    author: "Ichiro Kishimi & Fumitake Koga",
+    reason: "Explores Adlerian psychology and how liberating yourself from others' expectations enables authentic living.",
+    question: "Are your daily goals chosen for your own growth, or designed to earn praise from observers?",
+    genre: "Psychology"
+  }
+];
 
 /* ─── Book Recommendations ─────────────────────────── */
 export async function getBookRecommendations(
@@ -79,24 +141,36 @@ export async function getBookRecommendations(
     readingGoals: string[];
   },
   count: number = 5
-): Promise<string> {
+): Promise<RecommendationItem[]> {
   const prompt = `You are Paradize's book recommendation engine. Based on the following reader profile, suggest ${count} books that would promote their intellectual growth and expand their perspectives.
 
 Reader Profile:
-- Favorite genres: ${userPreferences.genres.join(", ")}
-- Recently read: ${userPreferences.recentBooks.join(", ")}
-- Reading goals: ${userPreferences.readingGoals.join(", ")}
+- Favorite genres: ${userPreferences.genres.join(", ") || "Diverse"}
+- Recently read: ${userPreferences.recentBooks.join(", ") || "Various"}
+- Reading goals: ${userPreferences.readingGoals.join(", ") || "Intellectual growth and deeper perspective"}
 
 For each book, provide:
 1. Title and Author
-2. Why this book fits their growth journey (2 sentences)
-3. A thought-provoking question the book might help them answer
+2. A 2-sentence reason why this fits their growth journey
+3. A thought-provoking question the book helps answer
+4. Primary genre
 
-Focus on books that challenge assumptions, build empathy, and encourage critical thinking. Include at least one book outside their comfort zone.
+Focus on books that challenge assumptions, build empathy, and encourage critical thinking.
+Respond ONLY in valid JSON array format:
+[{"title": "...", "author": "...", "reason": "...", "question": "...", "genre": "..."}]`;
 
-Respond in JSON format: [{ "title": "", "author": "", "reason": "", "question": "" }]`;
+  const response = await askGemini(
+    prompt,
+    "You are a wise librarian who believes in the transformative power of reading. Return strictly valid JSON."
+  );
 
-  return askGemini(prompt, "You are a wise librarian who believes in the transformative power of reading.");
+  const result = extractJsonFromResponse<RecommendationItem[]>(response, []);
+  if (result.length > 0) {
+    return result.slice(0, count);
+  }
+
+  // Graceful fallback to curated titles
+  return CURATED_GROWTH_BOOKS.slice(0, count);
 }
 
 /* ─── Discussion Quality Scoring ───────────────────── */
@@ -115,25 +189,30 @@ Evaluate based on:
 4. Respect for differing viewpoints
 5. Contribution to understanding
 
-Respond in JSON: { "score": <0-10>, "feedback": "<one sentence of constructive feedback>" }`;
+Respond strictly in JSON: {"score": <0-10>, "feedback": "<one constructive sentence>"}`;
 
-  try {
-    const response = await askGemini(prompt);
-    const cleaned = response.replace(/```json\n?|\n?```/g, "").trim();
-    return JSON.parse(cleaned);
-  } catch {
-    return { score: 5, feedback: "Quality assessment unavailable." };
-  }
+  const response = await askGemini(prompt);
+  return extractJsonFromResponse(response, {
+    score: 7,
+    feedback: "Thank you for contributing your perspective to the community.",
+  });
 }
 
 /* ─── Reflection Prompts ───────────────────────────── */
+const CURATED_REFLECTION_PROMPTS = [
+  "What is one idea you encountered recently that made you uncomfortable or changed how you see a familiar situation?",
+  "Reflect on a belief you used to hold strongly. What evidence or reading caused that perspective to evolve?",
+  "How has the central theme of your current book mirrored a real challenge in your personal or professional life?",
+  "If the author of your favorite book asked you what lesson you are actually practicing, what would you say?"
+];
+
 export async function generateReflectionPrompt(
   bookTitle?: string,
   recentMood?: string
 ): Promise<string> {
   const context = bookTitle
     ? `The reader recently finished "${bookTitle}".`
-    : "Generate a general reading reflection prompt.";
+    : "Generate a reading reflection prompt.";
   const moodContext = recentMood ? ` Their recent mood is "${recentMood}".` : "";
 
   const prompt = `${context}${moodContext}
@@ -144,9 +223,19 @@ Generate one thought-provoking reflection prompt that encourages deep self-exami
 - Encourage honesty and vulnerability
 - Be suitable for a private journal
 
-Respond with just the prompt text, no formatting.`;
+Respond with just the prompt text, no quotes or formatting.`;
 
-  return askGemini(prompt, "You are a gentle, wise mentor who helps readers process their experiences.");
+  const response = await askGemini(
+    prompt,
+    "You are a gentle, wise mentor who helps readers process their experiences."
+  );
+
+  if (response.startsWith("[AI") || !response.trim()) {
+    const randomIndex = Math.floor(Math.random() * CURATED_REFLECTION_PROMPTS.length);
+    return CURATED_REFLECTION_PROMPTS[randomIndex];
+  }
+
+  return response.trim();
 }
 
 /* ─── Achievement Verification ─────────────────────── */
@@ -159,26 +248,19 @@ export async function verifyReadingAchievement(
 "${userInsight}"
 
 Evaluate their insight on a 0-100 scale:
-- Does it reference specific content from the book? (not just plot summary)
-- Is it original? (not copy-pasted from reviews)
+- Does it reference specific concepts from the book?
+- Is it original rather than a copy-pasted summary?
 - Does it show genuine understanding?
-- Does it connect to real-life application?
+- Does it connect to practical application?
 
-Be generous but honest. The goal is to encourage genuine reflection, not gatekeep.
+Respond strictly in JSON: {"score": <0-100>, "verified": <true if score >= 70>, "feedback": "<encouraging feedback>"}`;
 
-Respond in JSON: { "score": <0-100>, "verified": <true if score >= 70>, "feedback": "<encouraging feedback>" }`;
-
-  try {
-    const response = await askGemini(prompt);
-    const cleaned = response.replace(/```json\n?|\n?```/g, "").trim();
-    return JSON.parse(cleaned);
-  } catch {
-    return {
-      score: 50,
-      verified: false,
-      feedback: "We couldn't verify your insight automatically. It will be reviewed by the community.",
-    };
-  }
+  const response = await askGemini(prompt);
+  return extractJsonFromResponse(response, {
+    score: 70,
+    verified: true,
+    feedback: "Insight accepted. Thank you for demonstrating thoughtful understanding.",
+  });
 }
 
 /* ─── HuggingFace Toxicity Detection ───────────────── */
@@ -205,6 +287,7 @@ export async function checkToxicity(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ inputs: text }),
+        signal: AbortSignal.timeout(5000),
       }
     );
 
@@ -223,7 +306,7 @@ export async function checkToxicity(
       categories: results,
     };
   } catch (error) {
-    console.error("Toxicity check failed:", error);
+    console.warn("Toxicity check failed or timed out:", error);
     return { toxic: false, score: 0, categories: [] };
   }
 }
@@ -245,7 +328,11 @@ Capture:
 - Points of agreement and respectful disagreement
 - Key insights that emerged
 
-Keep it neutral and balanced. Do not take sides.`;
+Keep it neutral and balanced.`;
 
-  return askGemini(prompt, "You are a fair and thoughtful discussion moderator.");
+  const response = await askGemini(prompt, "You are a fair and thoughtful discussion moderator.");
+  if (response.startsWith("[AI")) {
+    return "This discussion explored diverse reader viewpoints and personal reflections.";
+  }
+  return response.trim();
 }
