@@ -4,16 +4,16 @@ import { reflections, books } from "@/lib/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 import DOMPurify from "isomorphic-dompurify";
+import { createReflectionSchema } from "@/lib/validation/schemas";
 
 /**
  * GET /api/reflections?bookId=...
- * User ID is extracted from the server-side session — users can only see their own reflections.
+ * User ID is strictly extracted from the server-side session.
  */
 export async function GET(request: NextRequest) {
   try {
-    // Verify authentication server-side
     const session = await getServerSession();
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
@@ -52,29 +52,26 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/reflections — Create a reflection
  * Body: { content, bookId?, mood?, isPrivate? }
- * User ID is extracted from the server-side session.
+ * User ID is strictly extracted from the server-side session.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication server-side
     const session = await getServerSession();
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { content, bookId, mood, isPrivate = true } = body;
+    const parsed = createReflectionSchema.safeParse(body);
 
-    if (!content) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
-    }
-
-    if (content.length < 10) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Reflection must be at least 10 characters" },
+        { error: "Invalid reflection data", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
+
+    const { content, bookId, mood, isPrivate } = parsed.data;
 
     // Sanitize user-generated content
     const sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
@@ -84,11 +81,11 @@ export async function POST(request: NextRequest) {
     const result = await db
       .insert(reflections)
       .values({
-        userId: session.user.id, // Use session user ID, never client-provided
+        userId: session.user.id,
         content: sanitizedContent,
         bookId: bookId || null,
         mood: mood || null,
-        isPrivate,
+        isPrivate: isPrivate ?? true,
       })
       .returning();
 
