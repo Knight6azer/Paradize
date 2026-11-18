@@ -9,6 +9,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --experimental-strip-types --test tests/unit/validation.test.ts tests/unit/ai.test.ts tests/unit/books.test.ts tests/unit/i18n.test.ts tests/security/security-matrix.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
