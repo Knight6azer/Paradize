@@ -4,6 +4,7 @@ import { discussions, users, books, readingGroups } from "@/lib/db/schema";
 import { eq, desc, and, type SQL } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 import DOMPurify from "isomorphic-dompurify";
+import { createDiscussionSchema } from "@/lib/validation/schemas";
 
 /**
  * GET /api/discussions?type=...&bookId=...&groupId=...&limit=...&offset=...
@@ -14,13 +15,16 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
     const bookId = searchParams.get("bookId");
     const groupId = searchParams.get("groupId");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "20") || 20, 1), 50);
+    const offset = Math.max(parseInt(searchParams.get("offset") || "0") || 0, 0);
 
     const db = getDb();
     const conditions: SQL[] = [];
 
-    if (type) conditions.push(eq(discussions.discussionType, type as typeof discussions.discussionType.enumValues[number]));
+    const validTypes = ["question", "insight", "debate", "reflection", "review"];
+    if (type && validTypes.includes(type)) {
+      conditions.push(eq(discussions.discussionType, type as typeof discussions.discussionType.enumValues[number]));
+    }
     if (bookId) conditions.push(eq(discussions.bookId, bookId));
     if (groupId) conditions.push(eq(discussions.groupId, groupId));
 
@@ -63,32 +67,26 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/discussions — Create new discussion
  * Body: { title, content, discussionType, bookId?, groupId? }
- * User ID is extracted from the server-side session (not client-provided).
+ * User ID is strictly extracted from the server-side session.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication server-side
     const session = await getServerSession();
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { title, content, discussionType = "insight", bookId, groupId } = body;
+    const parsed = createDiscussionSchema.safeParse(body);
 
-    if (!title || !content) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Title and content are required" },
+        { error: "Invalid discussion data", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
-    if (title.length < 5 || content.length < 20) {
-      return NextResponse.json(
-        { error: "Title must be 5+ characters and content 20+ characters" },
-        { status: 400 }
-      );
-    }
+    const { title, content, discussionType, bookId, groupId } = parsed.data;
 
     // Sanitize user-generated content
     const sanitizedTitle = DOMPurify.sanitize(title, { ALLOWED_TAGS: [] });
@@ -99,7 +97,7 @@ export async function POST(request: NextRequest) {
     const result = await db
       .insert(discussions)
       .values({
-        authorId: session.user.id, // Use session user ID, never client-provided
+        authorId: session.user.id,
         title: sanitizedTitle,
         content: sanitizedContent,
         discussionType: discussionType as typeof discussions.discussionType.enumValues[number],
