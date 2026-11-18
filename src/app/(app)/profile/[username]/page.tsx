@@ -56,7 +56,14 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         const res = await fetch(`/api/users/${username}`);
         if (res.ok) {
           const data = await res.json();
-          setProfile(data.user);
+          setProfile({
+            id: data.user.id,
+            name: data.user.displayName || data.user.name,
+            preferences: data.user.readingPreferences,
+            stats: data.stats,
+            recentBooks: data.recentBooks || [],
+            recentDiscussions: data.recentDiscussions || [],
+          });
         } else {
           setError("User not found");
         }
