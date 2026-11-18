@@ -7,7 +7,6 @@ import {
   Sparkle,
   BookmarkSimple,
   ChatsCircle,
-  Fire,
   Medal,
 } from "@phosphor-icons/react";
 import BookCard from "@/app/components/BookCard";
