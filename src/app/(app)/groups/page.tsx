@@ -68,7 +68,7 @@ export default function GroupsPage() {
           className="btn btn--primary"
           onClick={() => {
             if (!session) router.push("/login");
-            else router.push("/groups/new"); // In a full implementation, create this page
+            else router.push("/groups/new");
           }}
         >
           <Plus size={16} weight="bold" />
