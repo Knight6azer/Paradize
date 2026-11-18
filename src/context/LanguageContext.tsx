@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useSyncExternalStore } from "react";
 import { LANGUAGES, DEFAULT_LANGUAGE, LanguageOption, SupportedLanguage } from "../i18n/languages";
 import { TRANSLATIONS } from "../i18n/translations";
 
@@ -17,30 +17,49 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 
 const STORAGE_KEY = "paradize_language";
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<SupportedLanguage>(DEFAULT_LANGUAGE);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
-      if (saved && TRANSLATIONS[saved]) {
-        setLanguageState(saved);
-      }
-    } catch {
-      // Ignore localStorage access restrictions
+function getSavedLanguage(): SupportedLanguage {
+  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
+    if (saved && saved in TRANSLATIONS) {
+      return saved;
     }
-    setIsHydrated(true);
-  }, []);
+  } catch {
+    // Ignore localStorage access restrictions
+  }
+  return DEFAULT_LANGUAGE;
+}
+
+const listeners = new Set<() => void>();
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", callback);
+  }
+  return () => {
+    listeners.delete(callback);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", callback);
+    }
+  };
+}
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const language = useSyncExternalStore<SupportedLanguage>(
+    subscribe,
+    getSavedLanguage,
+    () => DEFAULT_LANGUAGE
+  );
 
   const setLanguage = (langCode: SupportedLanguage) => {
-    if (TRANSLATIONS[langCode]) {
-      setLanguageState(langCode);
+    if (langCode in TRANSLATIONS) {
       try {
         localStorage.setItem(STORAGE_KEY, langCode);
       } catch {
         // Ignore
       }
+      listeners.forEach((listener) => listener());
     }
   };
 
@@ -49,10 +68,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const keys = path.split(".");
 
     // 1. Try currently selected language
-    let current: any = TRANSLATIONS[language];
+    let current: unknown = TRANSLATIONS[language];
     for (const key of keys) {
       if (current && typeof current === "object" && key in current) {
-        current = current[key];
+        current = (current as Record<string, unknown>)[key];
       } else {
         current = undefined;
         break;
@@ -64,10 +83,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     // 2. Fallback to English
-    let defaultLang: any = TRANSLATIONS[DEFAULT_LANGUAGE];
+    let defaultLang: unknown = TRANSLATIONS[DEFAULT_LANGUAGE];
     for (const key of keys) {
       if (defaultLang && typeof defaultLang === "object" && key in defaultLang) {
-        defaultLang = defaultLang[key];
+        defaultLang = (defaultLang as Record<string, unknown>)[key];
       } else {
         defaultLang = undefined;
         break;
@@ -91,7 +110,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         t,
         languages: LANGUAGES,
         currentLanguageObj,
-        isHydrated
+        isHydrated: true,
       }}
     >
       {children}
