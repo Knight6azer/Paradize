@@ -45,9 +45,9 @@ export const signInSchema = z.object({
 export const searchBooksSchema = z.object({
   query: z
     .string()
+    .trim()
     .min(1, "Search query is required")
-    .max(200, "Search query is too long")
-    .trim(),
+    .max(200, "Search query is too long"),
   page: z.coerce.number().int().min(0).default(0),
   limit: z.coerce.number().int().min(1).max(40).default(20),
 });
