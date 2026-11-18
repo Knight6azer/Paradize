@@ -261,10 +261,10 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div className={styles.hero__stat_number}>
-                    {t("hero.stats.members", "10K+")}
+                    {t("hero.stats.cohortSize", "5–20")}
                   </div>
                   <div className={styles.hero__stat_label}>
-                    {t("hero.stats.membersLabel", "Members")}
+                    {t("hero.stats.cohortLabel", "Readers / Cohort")}
                   </div>
                 </div>
               </div>
@@ -275,10 +275,10 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div className={styles.hero__stat_number}>
-                    {t("hero.stats.discussions", "250+")}
+                    {t("hero.stats.principlesCount", "4")}
                   </div>
                   <div className={styles.hero__stat_label}>
-                    {t("hero.stats.discussionsLabel", "Active Discussions")}
+                    {t("hero.stats.principlesLabel", "Core Principles")}
                   </div>
                 </div>
               </div>
@@ -289,10 +289,10 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div className={styles.hero__stat_number}>
-                    {t("hero.stats.events", "50+")}
+                    {t("hero.stats.languagesCount", "6")}
                   </div>
                   <div className={styles.hero__stat_label}>
-                    {t("hero.stats.eventsLabel", "Monthly Events")}
+                    {t("hero.stats.languagesLabel", "Languages Supported")}
                   </div>
                 </div>
               </div>
@@ -303,10 +303,10 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div className={styles.hero__stat_number}>
-                    {t("hero.stats.cities", "25+")}
+                    {t("hero.stats.cities", "Mumbai")}
                   </div>
                   <div className={styles.hero__stat_label}>
-                    {t("hero.stats.citiesLabel", "Cities (Offline)")}
+                    {t("hero.stats.citiesLabel", "Launch City")}
                   </div>
                 </div>
               </div>
@@ -412,17 +412,17 @@ export default function LandingPage() {
                 {t("showcase.eventTitle", "The Psychology of Decision Making")}
               </h3>
               <div className={styles.event_date}>
-                {t("showcase.eventDate", "Sat, 1 June 2024 • 7:00 PM IST")}
+                {t("showcase.eventDate", "Every Saturday • 7:00 PM IST (Online & Mumbai Cafes)")}
               </div>
               <div className={styles.event_footer}>
                 <div className={styles.attendees_row}>
                   <div className={styles.avatar_stack}>
                     <div className={styles.stack_avatar}>U</div>
                     <div className={styles.stack_avatar}>A</div>
-                    <div className={styles.stack_avatar}>R</div>
+                    <div className={styles.stack_avatar}>O</div>
                   </div>
                   <span className={styles.attendees_count}>
-                    {t("showcase.attendeesGoing", "+120 going")}
+                    {t("showcase.attendeesGoing", "Weekly cohort")}
                   </span>
                 </div>
                 <button
@@ -431,18 +431,18 @@ export default function LandingPage() {
                   onClick={() => setEventJoined(true)}
                 >
                   {eventJoined
-                    ? t("showcase.joined", "Joined!")
-                    : t("showcase.joinEvent", "Join Event")}
+                    ? t("showcase.joined", "Registered!")
+                    : t("showcase.joinEvent", "Get RSVP Updates")}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Card 3: What Members Are Saying */}
+          {/* Card 3: Community Ethos */}
           <div className={styles.card_widget}>
             <div className={styles.card_widget__header}>
               <span className={styles.card_widget__title}>
-                {t("showcase.testimonialsTitle", "What Members Are Saying")}
+                {t("showcase.testimonialsTitle", "Community Ethos")}
               </span>
               <Link href="/discussions" className={styles.card_widget__link}>
                 {t("showcase.viewAll", "View all")} <ArrowRight size={13} weight="bold" />
@@ -454,23 +454,32 @@ export default function LandingPage() {
               <blockquote className={styles.testimonial_quote}>
                 {t(
                   "showcase.testimonialQuote",
-                  "Paradize has completely changed the way I read and think. The discussions are insightful, respectful, and truly inspiring."
+                  "We don't read to agree. We read to understand. Curiosity over certainty, respect over agreement, growth over ego."
                 )}
               </blockquote>
               <div className={styles.member_row}>
-                <Image
-                  src="/images/ananya-avatar.jpg"
-                  alt="Ananya P. profile"
-                  width={38}
-                  height={38}
-                  className={styles.member_avatar}
-                />
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: "50%",
+                    background: "var(--forest-sage)",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  P
+                </div>
                 <div>
                   <div className={styles.member_name}>
-                    {t("showcase.testimonialAuthor", "Ananya P.")}
+                    {t("showcase.testimonialAuthor", "Paradize Reading Collective")}
                   </div>
                   <div className={styles.member_joined}>
-                    {t("showcase.testimonialSince", "Member since 2023")}
+                    {t("showcase.testimonialSince", "Mumbai Chapter")}
                   </div>
                 </div>
               </div>
